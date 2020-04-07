@@ -4,7 +4,7 @@
 \alias{visumot_summary}
 \title{visumot_summary}
 \usage{
-visumot_summary(df, ..., all.list = FALSE)
+visumot_summary(df, ...)
 }
 \arguments{
 \item{df}{dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}}
@@ -27,7 +27,7 @@ visumot_summary(df, ..., all.list = FALSE)
 
 \item{ribbon}{\code{logical}: display ribbon}
 
-\item{ribbon.stat}{\code{character}: statistic of interval: \code{'sd'}: standard deviation,
+\item{ribbon.stat}{\code{character}: choose ribbon-statistic: \code{'sd'}: standard deviation,
 \code{'se'}: standard error,
 \code{'ci'}: confidence interval}
 

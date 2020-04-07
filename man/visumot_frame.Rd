@@ -4,7 +4,7 @@
 \alias{visumot_frame}
 \title{visumot_frame}
 \usage{
-visumot_frame(df, ..., all.list = FALSE)
+visumot_frame(df, ...)
 }
 \arguments{
 \item{df}{dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}}

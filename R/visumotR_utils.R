@@ -1,15 +1,4 @@
 # 2 Utility functions ####
-#' @import tidyverse
-#' @import grid
-#' @import gridExtra
-#' @import ggecho
-#' @import rlang
-#' @import magick
-#' @import facetscales
-#' @import cowplot
-#' @import parallel
-#' @import foreach
-#' @import doSNOW
 # change input to:
 # vismot_summarise(df, measure_vars, group_vars)
 summary_mot <- function(df, measure_vars, group_vars){
