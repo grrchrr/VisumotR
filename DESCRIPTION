@@ -1,0 +1,24 @@
+Package: visumotR
+Type: Package
+Title: Visualizing Motility on Images
+Version: 0.1.0
+Author: Christoph Harmel
+Maintainer: Christoph Harmel <harmel@stud.uni-heidelberg.de>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    tidyverse,
+    grid,
+    gridExtra,
+    ggecho,
+    rlang,
+    magick,
+    facetscales,
+    cowplot,
+    parallel,
+    foreach,
+    doSNOW
+RoxygenNote: 7.1.0
