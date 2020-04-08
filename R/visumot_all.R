@@ -1,10 +1,29 @@
 # wrapper to run over image series
 
 #' @title visumot_all
-#' @description To be written...
-#' @details  To be written...
+#' @description Create time-resolved images series of tracking data with modifiable parameter mapping. 
+#' \code{visumot_all} is a wrapper function for \code{\link{visumot_frame}} and \code{\link{visumot_summary}}. User parameters for both
+#' functions can be passed via the lists \code{visumot_frame.list} and \code{visumot_summary.list}.
+#' @details   
 #' @examples
-#' visumot_all()
+#' # import tracking data
+#' df <- read.csv('hiv_tracking.csv')
+#' # get image files
+#' images <- list.files(pattern='.tif')
+#' # run visumotR with default settings
+#' visumot_all(df, images)
+#' # run visumotR with visumot_frame and visumot_summary
+#' tracks <- c(34, 125, 199, 205)
+#' summary_pars <- list(par.map='angle', time.unit='min', tracks=tracks)
+#' frame_pars <- list(par.map='angle', par.shape='infected', tracks=tracks)
+#' visumot_all(df,
+#'  images,
+#'  frame_range = c(20,100),
+#'  display_summary = 1,
+#'  visumot_frame.list = frame_pars,
+#'  visumot_summary.list = summary_pars,
+#'  file_name = 'hiv_tracking_angle'
+#'  )
 
 
 
