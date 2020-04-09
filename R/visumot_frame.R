@@ -27,7 +27,7 @@
 visumot_frame <- function(df, ...) {
 
   # set default parameters
-  pars.list.default <- list(image = NULL, image_depth = 8, frame = NULL, tracks = NULL, all.list = FALSE,
+  pars.list.default <- list(image = NULL, image_depth = 8, image_normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.unit = NULL,
                             crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
@@ -115,7 +115,12 @@ visumot_frame <- function(df, ...) {
   }
   
   # read in image
-  image <- image_read(pars.list$image) %>% image_normalize()
+  image <- image_read(pars.list$image)
+  
+  if (pars.list$image_normalize) {
+    image <- image %>% image_normalize()
+  }
+  
   if (pars.list$dimensions == 2) {
     pars.list$width <- image_info(image) %>% select(width) %>% pull()
     pars.list$height <- image_info(image) %>% select(height) %>% pull()
