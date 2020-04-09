@@ -7,7 +7,7 @@
 visumot_frame(df, ...)
 }
 \arguments{
-\item{df}{dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}}
+\item{df}{dataframe of the form: \code{df(track, time, X, Y, (Z,) mapping_parameters, ...)}}
 
 \item{image}{\code{character}: filename of image}
 
@@ -25,9 +25,9 @@ visumot_frame(df, ...)
 
 \item{par.unit}{\code{character}: unit of the numeric mapped parameter}
 
-\item{crop}{\code{logical} option for cropping images; default: \code{FALSE}}
+\item{crop}{\code{logical}: option for cropping images; default: \code{FALSE}}
 
-\item{sub.img}{\code{logical} option for creating sub-images from specified \code{tracks} or pre-filtered \code{df}; default: \code{FALSE}}
+\item{sub.img}{\code{logical}: option for creating sub-images from specified \code{tracks} or pre-filtered \code{df}; default: \code{FALSE}}
 
 \item{sub.window}{\code{numeric}: size of the sub-images in pixels}
 
@@ -57,6 +57,11 @@ visumot_frame(df, ...)
 
 \item{scaling}{\code{numeric}: scaling factor for unit; default: \code{1}}
 
+\item{dimensions}{\code{numeric}: specify whether the images are 2D or 3D. 
+If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}}
+
+\item{manual.Z}{\code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used}
+
 \item{scale.bar}{\code{logical}: show scalebar; default: \code{FALSE}}
 
 \item{scale.width}{\code{numeric}: width of scalebar; default: \code{40}}
@@ -70,14 +75,29 @@ visumot_frame(df, ...)
 \item{scale.color}{\code{character}: specify color from R-color palette or hexcode}
 }
 \value{
-ggplot2 plot-object
+returns a ggplot2 plot-object which can be further modified in the known manner
 }
 \description{
-To be written...
+With visumot_frame, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint.
 }
 \details{
 To be written...
 }
 \examples{
-visumot_frame()
+# import tracking data
+df <- read.csv('hiv_tracking.csv')
+# get image files
+images <- list.files(pattern='.tif')
+# run visumot_frame with default settings
+visumot_frame(df, image=images[1], frame=1) 
+# run visumot_frame with specified settings
+visumot_frame(df,
+ image= images[1],
+ frame = 1,
+ tracks = c(34, 125, 199, 205),
+ scale.bar = TRUE, 
+ scale.bar.color = 'red',
+ par.map='speed',
+ par.shape='contact'
+ )
 }

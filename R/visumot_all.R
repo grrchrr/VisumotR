@@ -1,7 +1,7 @@
 # wrapper to run over image series
 
 #' @title visumot_all
-#' @description Create time-resolved images series of tracking data with modifiable parameter mapping. 
+#' @description Creates time-resolved images series of tracking data with modifiable parameter mapping. 
 #' \code{visumot_all} is a wrapper function for \code{\link{visumot_frame}} and \code{\link{visumot_summary}}. User parameters for both
 #' functions can be passed via the lists \code{visumot_frame.list} and \code{visumot_summary.list}.
 #' @details   
