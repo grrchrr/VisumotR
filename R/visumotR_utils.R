@@ -110,7 +110,7 @@ get_crop_pars <- function(df, pars.list){
 }
 
 process_img <- function(df,image, pars.list){
-  
+  # image <- image %>% image_apply(image_crop, geometry=crop_string_df(0,pars.list$width,0,pars.list$height))
   if (pars.list$sub.img) {
     if (!is.null(pars.list$tracks)) {
       tracks <- pars.list$tracks
@@ -118,7 +118,7 @@ process_img <- function(df,image, pars.list){
       tracks <- df %>% distinct(track) %>% pull()
     }
     
-    if (is.null(pars.list$projection)) {
+    if (is.null(pars.list$projection) & pars.list$dimensions==3) {
       for (i in tracks) {# create cropped images and store as stack
         crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
         z <- df %>% filter(track == i,
@@ -167,8 +167,8 @@ plot_frame <- function(df, image, pars.list){
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
 
   # define background image
-  bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = FALSE)
-
+   bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
+  #bg <- rasterGrob(image, width = pars.list$width, height = pars.list$height, interpolate = FALSE)
   # filter for tracks
   if (!is.null(pars.list$tracks)) {
     df <- df %>% filter(track %in% pars.list$tracks)
@@ -205,17 +205,17 @@ plot_frame <- function(df, image, pars.list){
     theme(plot.margin = unit(c(2,2,2,2),'mm'),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank()) +
-    coord_fixed()
+    coord_fixed(expand=FALSE)
   # create either cropped or full background image with scales
   if (pars.list$crop) {
     crop_pars <- pars.list$crop_pars
     axis_ticks_x <- seq(crop_pars[['x_min']], crop_pars[['x_max']], pars.list$axis.tick)
     axis_ticks_y <- seq(crop_pars[['y_min']], crop_pars[['y_max']], pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
-                               xmin = crop_pars[['x_min']],
-                               xmax = crop_pars[['x_max']],
-                               ymin = crop_pars[['y_min']],
-                               ymax = crop_pars[['y_max']]) +
+                               xmin = crop_pars[['x_min']]+0.5,
+                               xmax = crop_pars[['x_max']]+0.5,
+                               ymin = crop_pars[['y_min']]+0.5,
+                               ymax = crop_pars[['y_max']]+0.5) +
       scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']]),
                          breaks = axis_ticks_x,
                          labels = axis_ticks_x*pars.list$scaling,
@@ -229,9 +229,9 @@ plot_frame <- function(df, image, pars.list){
     axis_ticks_x <- seq(pars.list$axis.tick, pars.list$width, pars.list$axis.tick)
     axis_ticks_y <- seq(pars.list$axis.tick, pars.list$height, pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
-                               xmin = 1,
+                               xmin = 0.5,
                                xmax = pars.list$width,
-                               ymin = 1,
+                               ymin = 0.5,
                                ymax = pars.list$height) +
       scale_x_continuous(limits = c(1, pars.list$width),
                          expand = c(0, 0),
@@ -372,8 +372,8 @@ plot_frame_sub <- function(df, image, pars.list){
                           ymin = pars_plot[['y_min']],
                           ymax = pars_plot[['y_max']]) +
         annotate("text",
-                 x = pars_plot[['x_min']] + pars.list$scale.x + 5,
-                 y = pars_plot[['y_min']] + pars.list$scale.y,
+                 x = pars_plot[['x_min']] + pars.list$tracks.label.x,
+                 y = pars_plot[['y_min']] + pars.list$tracks.label.y,
                  label = pars.list$tracks[i],
                  col = pars.list$scale.color) +
         geom_path(alpha = pars.list$tracks.alpha,
@@ -389,7 +389,9 @@ plot_frame_sub <- function(df, image, pars.list){
         theme(legend.position = 'none',
               axis.title = element_blank(),
               axis.text = element_blank(),
-              axis.ticks = element_blank())
+              axis.ticks = element_blank(),
+              plot.background = element_rect(fill='white', color = 'white'))
+      
       # add scale bars
       if (pars.list$scale.bar == TRUE) {
         p1 <- p1 + geom_rect(xmin = pars_plot[['x_max']] - pars.list$scale.width - pars.list$scale.x,
