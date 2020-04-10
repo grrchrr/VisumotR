@@ -33,7 +33,8 @@ visumot_frame <- function(df, ...) {
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
                             points.size = 1, points.alpha = 0.9, points.stat = 'echo', points.shape = 16, 
                             axis.tick = 100, axis.display = TRUE, axis.labs = TRUE,
-                            unit = 'px', scaling = 1, dimensions = 2, projection = NULL,  manual.z = NULL,
+                            unit = 'px', scaling = 1, dimensions = 2, projection = NULL, manual.z = NULL,
+                            track.label = TRUE, tracks.label.x = 10, tracks.label.y = 10,
                             scale.bar = FALSE, scale.width = 40, scale.height = 10, scale.x = 10,
                             scale.y = 10, scale.color = 'grey70')
 
@@ -75,6 +76,7 @@ visumot_frame <- function(df, ...) {
 
   # get user input
   pars.list.user <- list(...)
+  # check if all arguments were passed in a list or not
   if (length(pars.list.user) == 0) {
     pars.list <- pars.list.default
   } else {
@@ -85,7 +87,6 @@ visumot_frame <- function(df, ...) {
     # match user and default values
     pars.list <- transfer_pars(pars.list.user,pars.list.default)
   }
-
 
   # check image path
   if (is.null(pars.list$image)) {
@@ -103,6 +104,9 @@ visumot_frame <- function(df, ...) {
       warning('par.map not specified...\n',
               paste('\tdefaulted to:', pars.list$par.map,'\n'),
               '\tassuming: df(id, time, X, Y, mapping_parameters, ...)', call. = FALSE)
+      if (is.numeric(df[pars.list$par.map] %>% pull())) {
+        pars.list$par.max <- df %>% select(c(pars.list$par.map)) %>% pull() %>% max(na.rm = TRUE)
+      }
     } else {
       pars.list$par.map <- NULL
       warning('par.map not specified...\n','no mapping parameter found\n',
@@ -110,35 +114,40 @@ visumot_frame <- function(df, ...) {
     }
   }
 
-  if (is.numeric(df[pars.list$par.map] %>% pull())) {
-    pars.list$par.max <- df %>% select(c(pars.list$par.map)) %>% pull() %>% max(na.rm = TRUE)
-  }
+  
   
   # read in image
   image <- image_read(pars.list$image)
-  
+  # normalize image
   if (pars.list$image_normalize) {
     image <- image %>% image_normalize()
   }
-  
+  # get pars for single imagefile
   if (pars.list$dimensions == 2) {
     pars.list$width <- image_info(image) %>% select(width) %>% pull()
     pars.list$height <- image_info(image) %>% select(height) %>% pull()
   }
+  # get pars for image stack
   if (pars.list$dimensions == 3) {
     pars.list$width <- image_info(image) %>% select(width) %>% pull() %>% unique()
     pars.list$height <- image_info(image) %>% select(height) %>% pull() %>% unique()
+    # calculate z-projection
     if (!is.null(pars.list$projection)) {
       image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
     }
   }
-
+  
+  # set window size for accurate pointing
+  if (pars.list$sub.window %% 2 == 0) {
+    pars.list$sub.window <- pars.list$sub.window + 1
+  }
+  
   # get cropping pars
   pars.list$crop_pars <- get_crop_pars(df,pars.list)
-  #return(pars.list)
+  
   # image processing
   image <- process_img(df,image, pars.list)
-
+  
   # plot according to parameters
   suppressMessages(suppressWarnings(
     if (pars.list$sub.img) {

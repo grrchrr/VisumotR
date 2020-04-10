@@ -167,8 +167,8 @@ plot_frame <- function(df, image, pars.list){
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
 
   # define background image
-   bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
-  #bg <- rasterGrob(image, width = pars.list$width, height = pars.list$height, interpolate = FALSE)
+  bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
+  
   # filter for tracks
   if (!is.null(pars.list$tracks)) {
     df <- df %>% filter(track %in% pars.list$tracks)
