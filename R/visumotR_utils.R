@@ -110,14 +110,35 @@ get_crop_pars <- function(df, pars.list){
 }
 
 process_img <- function(df,image, pars.list){
-
+  
   if (pars.list$sub.img) {
     if (!is.null(pars.list$tracks)) {
       tracks <- pars.list$tracks
     } else {
       tracks <- df %>% distinct(track) %>% pull()
     }
-
+    
+    if (is.null(pars.list$projection)) {
+      for (i in tracks) {# create cropped images and store as stack
+        crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
+        z <- df %>% filter(track == i,
+                           time == pars.list$frame - 1) %>% select(Z) %>% pull()
+        z_low <- as.integer(z)
+        z_up <- z_low + 1
+        weights <- c(1 - (z - z_low), 1 - (z_up - z_low))
+        image_process <- image[c(z_low,z_up)] %>% project_z(pars.list$width, pars.list$height, 'mean',pars.list$image_depth, weights)
+        if (length(crop_string_track) == 1) {
+          image_cropped <- image_process[1] %>%
+            image_crop(crop_string_track) %>%
+            image_flip()
+          image_process <- c(image_process,image_cropped)
+        } else {# if track not present yet, add blank image
+          image_process <- c(image_process,image_blank(pars.list$sub.window, pars.list$sub.window))
+        }
+      }
+      image <- image_process
+    }
+    
     for (i in tracks) {# create cropped images and store as stack
       crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
       if (length(crop_string_track) == 1) {
@@ -138,7 +159,6 @@ process_img <- function(df,image, pars.list){
   }
   return(image)
 }
-
 
 
 plot_frame <- function(df, image, pars.list){
@@ -189,7 +209,6 @@ plot_frame <- function(df, image, pars.list){
   # create either cropped or full background image with scales
   if (pars.list$crop) {
     crop_pars <- pars.list$crop_pars
-    print(crop_pars)
     axis_ticks_x <- seq(crop_pars[['x_min']], crop_pars[['x_max']], pars.list$axis.tick)
     axis_ticks_y <- seq(crop_pars[['y_min']], crop_pars[['y_max']], pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
@@ -223,7 +242,17 @@ plot_frame <- function(df, image, pars.list){
                          breaks = c(1, axis_ticks_y),
                          labels = c(0, axis_ticks_y)*pars.list$scaling)
   }
-
+  
+  # add tracks
+  p <- p +
+    geom_path(alpha = pars.list$tracks.alpha,
+              size = pars.list$tracks.size) +
+    geom_point(data = df %>% filter(time == pars.list$frame - 1),
+               alpha = pars.list$points.alpha,
+               stat = pars.list$points.stat,
+               size = pars.list$points.size
+               )
+  
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
@@ -242,14 +271,7 @@ plot_frame <- function(df, image, pars.list){
   if (is.factor(df[pars.list$par.map] %>% pull()) | is.character(df[pars.list$par.map] %>% pull()) ) {
     p <- p + scale_colour_viridis_d(na.value = 'red')
   }
-  # add tracks
-  p <- p +
-    geom_path(alpha = pars.list$tracks.alpha,
-              size = pars.list$tracks.size) +
-    geom_point(data = df %>% filter(time == pars.list$frame - 1),
-               alpha = pars.list$points.alpha,
-               stat = pars.list$points.stat,
-               size = pars.list$points.size)
+  
   # add scale bar
   if (pars.list$scale.bar == TRUE) {
     p <- p + geom_rect(xmin = pars.list$width - pars.list$scale.width - pars.list$scale.x,
@@ -374,7 +396,8 @@ plot_frame_sub <- function(df, image, pars.list){
                              xmax = pars_plot[['x_max']] - pars.list$scale.x,
                              ymin = pars_plot[['y_min']] + pars.list$scale.y,
                              ymax = pars_plot[['y_min']] + pars.list$scale.height + pars.list$scale.y,
-                             fill = pars.list$scale.color)
+                             fill = pars.list$scale.color,
+                             col = pars.list$scale.color)
       }
       plots[[i]] <- p1
     }

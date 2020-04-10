@@ -31,7 +31,7 @@ visumot_frame <- function(df, ...) {
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.unit = NULL,
                             crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
-                            points.size = 1, points.alpha = 0.9, points.stat = 'echo', points.shape = 16,
+                            points.size = 1, points.alpha = 0.9, points.stat = 'echo', points.shape = 16, 
                             axis.tick = 100, axis.display = TRUE, axis.labs = TRUE,
                             unit = 'px', scaling = 1, dimensions = 2, projection = NULL,  manual.z = NULL,
                             scale.bar = FALSE, scale.width = 40, scale.height = 10, scale.x = 10,
@@ -128,7 +128,9 @@ visumot_frame <- function(df, ...) {
   if (pars.list$dimensions == 3) {
     pars.list$width <- image_info(image) %>% select(width) %>% pull() %>% unique()
     pars.list$height <- image_info(image) %>% select(height) %>% pull() %>% unique()
-    image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
+    if (!is.null(pars.list$projection)) {
+      image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
+    }
   }
 
   # get cropping pars
