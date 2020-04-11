@@ -147,7 +147,24 @@ process_img <- function(df,image, pars.list){
           image_flip()
         image <- c(image,image_cropped)
       } else {# if track not present yet, add blank image
-        image <- c(image,image_blank(pars.list$sub.window, pars.list$sub.window))
+        # get crop string for first occurence of track
+        window_half <- pars.list$sub.window / 2
+        crop_string_track <- df %>% filter(track == i, time == min(time[track==i])) %>%
+        mutate(X = ifelse(X < window_half, window_half, # if windows exceeds image boundaries...
+                          ifelse(pars.list$width - X < window_half, pars.list$width - window_half, X)),
+               Y = ifelse(Y < window_half, window_half,
+                          ifelse(pars.list$height - Y < window_half, pars.list$height - window_half ,Y)),
+               x_min = X - window_half,
+               x_max = X + window_half,
+               y_min = Y - window_half,
+               y_max = Y + window_half) %>%
+          mutate(string = crop_string_df(x_min, x_max, y_min, y_max)) %>% select(string) %>% pull()
+        print(crop_string_track)
+        image_cropped <- image[1] %>%
+          image_crop(crop_string_track) %>%
+          image_flip()
+        image <- c(image,image_cropped)
+        # image <- c(image,image_blank(pars.list$sub.window, pars.list$sub.window))
       }
     }
   } else {
@@ -205,7 +222,7 @@ plot_frame <- function(df, image, pars.list){
     theme(plot.margin = unit(c(2,2,2,2),'mm'),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank()) +
-    coord_fixed(expand=FALSE)
+    coord_fixed()
   # create either cropped or full background image with scales
   if (pars.list$crop) {
     crop_pars <- pars.list$crop_pars
@@ -361,10 +378,35 @@ plot_frame_sub <- function(df, image, pars.list){
     bg <- rasterGrob(image[i + 1],
                      width = unit(1, "npc"),
                      height = unit(1, "npc"),
-                     interpolate = FALSE)
-    if (length(pars_plot[['string']]) == 0) {
-      plots[[i]] <- bg
-    } else {
+                     interpolate = TRUE)
+     if (length(pars_plot[['string']]) == 0) {
+       plots[[i]] <- p +
+         annotation_custom(bg,
+                           xmin = -Inf,
+                           xmax = Inf,
+                           ymin = -Inf,
+                           ymax = Inf) +
+         theme(legend.position = 'none',
+               axis.title = element_blank(),
+               axis.text = element_blank(),
+               axis.ticks = element_blank()) +
+         annotate("text",
+                  x = pars.list$tracks.label.x,
+                  y = pars.list$tracks.label.y,
+                  label = pars.list$tracks[i],
+                  col = pars.list$scale.color) +
+         coord_fixed()+
+         # geom_path(alpha = pars.list$tracks.alpha,
+         #           size = pars.list$tracks.size) +
+         # geom_point(data = df %>% filter(time == pars.list$frame - 1),
+         #            alpha = pars.list$points.alpha,
+         #            stat = pars.list$points.stat,
+         #            size = pars.list$points.size) +
+         scale_x_continuous(limits = c(1, pars.list$sub.window),
+                            expand = c(0, 0)) +
+         scale_y_continuous(limits = c(1, pars.list$sub.window),
+                            expand = c(0, 0)) 
+     } else {
       p1 <- p +
         annotation_custom(bg,
                           xmin = pars_plot[['x_min']],
@@ -389,8 +431,7 @@ plot_frame_sub <- function(df, image, pars.list){
         theme(legend.position = 'none',
               axis.title = element_blank(),
               axis.text = element_blank(),
-              axis.ticks = element_blank(),
-              plot.background = element_rect(fill='white', color = 'white'))
+              axis.ticks = element_blank())
       
       # add scale bars
       if (pars.list$scale.bar == TRUE) {
