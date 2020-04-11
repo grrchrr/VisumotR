@@ -34,7 +34,7 @@ visumot_all <- function(df, images, frame_range = NULL,
                         visumot_frame.list = NULL,
                         visumot_summary.list = NULL,
                         save = TRUE, file_name = NULL,
-                        width = 2000, height = 1200, rel_width = 1/3,
+                        width = 2000, height = 1200, rel_width = 1,
                         browse = FALSE, return = FALSE) {
 
   #' @param df dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}
@@ -89,7 +89,7 @@ visumot_all <- function(df, images, frame_range = NULL,
             .export = c('visumot_summary', 'summary_mot', 'transfer_pars'),
             .packages = (.packages())
     ) %dopar% {
-      frame_stat <- image_graph(width = width*rel_width, height = height, res = 100)
+      frame_stat <- image_graph(width = width*(1-rel_width), height = height, res = 100)
       visumot_summary.list$frame <- i
       print(visumot_summary(df,
                             visumot_summary.list,
@@ -117,10 +117,9 @@ visumot_all <- function(df, images, frame_range = NULL,
     foreach(i = c(first_frame:last_frame),
             .export = c('visumot_frame', 'crop_string', 'crop_string_df','get_crop_pars','transfer_pars','process_img','plot_frame','plot_frame_sub'),
             .packages = (.packages())) %dopar% {
-              frames_map <- image_graph(width = width*(1 - rel_width), height = height, res = 100)
+              frames_map <- image_graph(width = width*rel_width, height = height, res = 100)
               visumot_frame.list$image <- images[i]
               visumot_frame.list$frame <- i
-              print(visumot_frame.list)
               print(visumot_frame(df,
                                   visumot_frame.list,
                                   all.list = TRUE))
