@@ -114,7 +114,8 @@ visumot_frame <- function(df, ...) {
     }
   }
 
-  
+  # discretize positional information 
+  df <-  df %>% mutate(X = round(X), Y = round(Y))
   
   # read in image
   image <- image_read(pars.list$image)
