@@ -1,4 +1,4 @@
-
+# calibration tiffs 
 calibrate_img <- function(df,width,height,pars.list){
   pos <- df%>% filter(time==pars.list$frame -1) %>% mutate(X=round(X), Y=round(Y)) %>% select(X,Y) %>% as.list()
   array <- array(NA,dim=c(height,width,1))
