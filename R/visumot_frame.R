@@ -115,7 +115,7 @@ visumot_frame <- function(df, ...) {
   }
 
   # discretize positional information 
-  df <-  df %>% mutate(X = round(X), Y = round(Y))
+  #df <-  df %>% mutate(X = round(X), Y = round(Y))
   
   # read in image
  
@@ -147,10 +147,10 @@ visumot_frame <- function(df, ...) {
   
   
   # set window size for accurate pointing
-  if (pars.list$sub.window %% 2 == 0) {
-    pars.list$sub.window <- pars.list$sub.window + 1
-  }
-  
+  # if (pars.list$sub.window %% 2 == 0) {
+  #   pars.list$sub.window <- pars.list$sub.window + 1
+  # }
+  # 
   # get cropping pars
   pars.list$crop_pars <- get_crop_pars(df,pars.list)
   

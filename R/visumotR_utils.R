@@ -21,11 +21,11 @@ crop_string <- function(pars){
   center_x <- x_min + window_x/2
   center_y <- y_min + window_y/2
   offset_x <- center_x - (window_x / 2)
-  if (offset_x > 0) {
+  if (offset_x >= 0) {
     offset_x <- paste("+", offset_x, sep = "")
   }
   offset_y <- center_y - (window_y / 2)
-  if (offset_y > 0) {
+  if (offset_y >= 0) {
     offset_y <- paste("+", offset_y, sep = "")
   }
   crop_string <- paste(
@@ -167,6 +167,7 @@ process_img <- function(df,image, pars.list){
     }
   } else {
     if (pars.list$crop) {
+      print(crop_string(pars.list$crop_pars))
       image <- image %>% image_crop(crop_string(pars.list$crop_pars)) %>% image_flip()
     } else {
       image <- image %>% image_flip()
@@ -177,6 +178,7 @@ process_img <- function(df,image, pars.list){
 
 
 plot_frame <- function(df, image, pars.list){
+  df <- df %>% mutate(X=X+0.5, Y=Y+0.5)
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
@@ -223,36 +225,41 @@ plot_frame <- function(df, image, pars.list){
     coord_fixed()
   # create either cropped or full background image with scales
   if (pars.list$crop) {
+    print(pars.list)
+    print(df)
     crop_pars <- pars.list$crop_pars
+    print(crop_pars)
+    print(image)
     axis_ticks_x <- seq(crop_pars[['x_min']], crop_pars[['x_max']], pars.list$axis.tick)
     axis_ticks_y <- seq(crop_pars[['y_min']], crop_pars[['y_max']], pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
-                               xmin = crop_pars[['x_min']]+0.5,
-                               xmax = crop_pars[['x_max']]+0.5,
-                               ymin = crop_pars[['y_min']]+0.5,
-                               ymax = crop_pars[['y_max']]+0.5) +
-      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']]),
+                               xmin = crop_pars[['x_min']],
+                               xmax = crop_pars[['x_max']],
+                               ymin = crop_pars[['y_min']],
+                               ymax = crop_pars[['y_max']]) +
+      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']]+0.5),
                          breaks = axis_ticks_x,
                          labels = axis_ticks_x*pars.list$scaling,
                          expand = c(0, 0)) +
-      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']]),
+      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']]+0.5),
                          breaks = axis_ticks_y,
                          labels = axis_ticks_y*pars.list$scaling,
                          expand = c(0, 0))
   } else {
+    
     # set axis ticks
     axis_ticks_x <- seq(pars.list$axis.tick, pars.list$width, pars.list$axis.tick)
     axis_ticks_y <- seq(pars.list$axis.tick, pars.list$height, pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
-                               xmin = 0.5,
+                               xmin = 0,
                                xmax = pars.list$width,
-                               ymin = 0.5,
+                               ymin = 0,
                                ymax = pars.list$height) +
-      scale_x_continuous(limits = c(1, pars.list$width),
+      scale_x_continuous(limits = c(0, pars.list$width),
                          expand = c(0, 0),
                          breaks = c(1, axis_ticks_x),
                          labels = c(0, axis_ticks_x)*pars.list$scaling) +
-      scale_y_continuous(limits = c(1, pars.list$height),
+      scale_y_continuous(limits = c(0, pars.list$height),
                          expand = c(0, 0),
                          breaks = c(1, axis_ticks_y),
                          labels = c(0, axis_ticks_y)*pars.list$scaling)
@@ -264,7 +271,8 @@ plot_frame <- function(df, image, pars.list){
               size = pars.list$tracks.size) +
     geom_point(data = df %>% filter(time == pars.list$frame - 1),
                alpha = pars.list$points.alpha,
-               stat = pars.list$points.stat,
+               #stat = pars.list$points.stat,
+               position='identity',
                size = pars.list$points.size
                )
   
@@ -301,7 +309,7 @@ plot_frame <- function(df, image, pars.list){
 
 
 plot_frame_sub <- function(df, image, pars.list){
-
+  df <- df %>% mutate(X=X+0.5, Y=Y+0.5)
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
@@ -394,12 +402,6 @@ plot_frame_sub <- function(df, image, pars.list){
                   label = pars.list$tracks[i],
                   col = pars.list$scale.color) +
          coord_fixed()+
-         # geom_path(alpha = pars.list$tracks.alpha,
-         #           size = pars.list$tracks.size) +
-         # geom_point(data = df %>% filter(time == pars.list$frame - 1),
-         #            alpha = pars.list$points.alpha,
-         #            stat = pars.list$points.stat,
-         #            size = pars.list$points.size) +
          scale_x_continuous(limits = c(1, pars.list$sub.window),
                             expand = c(0, 0)) +
          scale_y_continuous(limits = c(1, pars.list$sub.window),
