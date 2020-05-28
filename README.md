@@ -25,7 +25,7 @@ The output of visumot_fame() does not need to be the whole image. It can be crop
 
 ![Sub-window output](images/visu_sub.png)
 
-### 3D image-data
+### 3D images and Z-projections
 VisumotR supports .tiff-stacks of 3D image data as input. Since ggplot2 just works in 2D, the user can choose from different Z-projections to view the data in 2D. All other output modes work with 3D-image data. In addition, it is possible to follow several individual tracks on their respective Z-axis in parallel.
 
 ![3D-imaging of cell nuclei](images/z_project.jpg)
