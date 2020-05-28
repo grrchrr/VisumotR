@@ -35,5 +35,5 @@ devtools::install_github("zeehio/facetscales")
 remotes::install_github("coolbutuseless/ggecho")
 
 # install VisumotR from git repo
-devtools::install_git(“https://github.com/grrchrr/VisumotR”)
+devtools::install_git("https://github.com/grrchrr/VisumotR")
 ```
