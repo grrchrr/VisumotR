@@ -21,7 +21,7 @@ Each output-type of visumot_frame() can be combined with the output from visumot
 ![Output from visumot_frame() combined with visumot_summary()](images/frame_summary.jpg)
 
 ### Follow single tracks within sub-windows
-The output of visumot_fame() does not need to be the whole image. It can be cropped manually or automatically or create sub-windows that allow to follow individual tracks, that might be interesting due to prior perfomed statistical analysis that highlighted for example outliers.
+The output of visumot_frame() does not need to be the whole image. It can be cropped manually or automatically or create sub-windows that allow to follow individual tracks, that might be interesting due to prior perfomed statistical analysis that highlighted for example outliers.
 
 ![Sub-window output](images/visu_sub.png)
 
