@@ -1,5 +1,8 @@
 # VisumotR - Visualizing Motility Parameters on Images in R
-
+<!-- badges: start -->
+![](https://img.shields.io/badge/lifecycle-alpha-orange.svg)
+<!-- badges: end -->
+ 
 VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally this package was intended to be used on live-cell microscopy image and tracking data, but it can be used with any kind of data supplying a dataframe with track Ids, time, X and Y coordinates, as well as numeric or discrete mapping parameters and corresponding images.
 
 ![HIV-1 infected CD4+ T-cells in an complex collagen environment](images/example_visumotr-1.gif)
@@ -23,4 +26,11 @@ The output of visumot_fame() does not need to be the whole image. It can be crop
 ![Sub-window output](images/visu_sub.png)
 
 ## Install VisumotR
+```{r}
+# install dependencies which are not found on CRAN
+devtools::install_github("zeehio/facetscales")
+remotes::install_github("coolbutuseless/ggecho")
 
+# install VisumotR from git repo
+devtools::install_git(“https://github.com/grrchrr/VisumotR”)
+```
