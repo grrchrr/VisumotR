@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lifecycle-alpha-orange.svg)
 <!-- badges: end -->
  
-VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally this package was intended to be used on live-cell microscopy image and tracking data, but it can be used with any kind of data supplying a dataframe with track Ids, time, X and Y coordinates, as well as numeric or discrete mapping parameters and corresponding images.
+VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally this package was intended to be used on live-cell microscopy image and tracking data, but it can be used with any kind of data supplying a dataframe with track Ids, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
 
 ![HIV-1 infected CD4+ T-cells in an complex collagen environment](images/example_visumotr-1.gif)
 
@@ -24,6 +24,11 @@ Each output-type of visumot_frame() can be combined with the output from visumot
 The output of visumot_fame() does not need to be the whole image. It can be cropped manually or automatically or create sub-windows that allow to follow individual tracks, that might be interesting due to prior perfomed statistical analysis that highlighted for example outliers.
 
 ![Sub-window output](images/visu_sub.png)
+
+### 3D image-data
+VisumotR supports .tiff-stacks of 3D image data as input. Since ggplot2 just works in 2D, the user can choose from different Z-projections to view the data in 2D. All other output modes work with 3D-image data. In addition, it is possible to follow several individual tracks on their respective Z-axis in parallel.
+
+![3D-imaging of cell nuclei](images/z_project.jpg)
 
 ## Install VisumotR
 ```{r}
