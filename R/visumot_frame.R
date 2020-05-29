@@ -87,12 +87,10 @@ visumot_frame <- function(df, ...) {
     # match user and default values
     pars.list <- transfer_pars(pars.list.user,pars.list.default)
   }
-
   # check image path
   if (is.null(pars.list$image)) {
     stop('Image file not specified.')
   }
-
   # check frame
   if (is.null(pars.list$frame)) {
     stop('Frame not specified.')
@@ -113,15 +111,8 @@ visumot_frame <- function(df, ...) {
               'color mapping disabled...', call. = FALSE)
     }
   }
-
-  # discretize positional information 
-  #df <-  df %>% mutate(X = round(X), Y = round(Y))
-  
   # read in image
- 
   image <- image_read(pars.list$image)
-  
-  
   # normalize image
   if (pars.list$image_normalize) {
     image <- image %>% image_normalize()
@@ -140,23 +131,14 @@ visumot_frame <- function(df, ...) {
       image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
     }
   }
-  
-  if (pars.list$calibrate){
+  # calibrate images
+  if (pars.list$calibrate) {
     image <- calibrate_img(df,pars.list$width,pars.list$height,pars.list)
   }
-  
-  
-  # set window size for accurate pointing
-  # if (pars.list$sub.window %% 2 == 0) {
-  #   pars.list$sub.window <- pars.list$sub.window + 1
-  # }
-  # 
   # get cropping pars
   pars.list$crop_pars <- get_crop_pars(df,pars.list)
-  
   # image processing
   image <- process_img(df,image, pars.list)
-  
   # plot according to parameters
   suppressMessages(suppressWarnings(
     if (pars.list$sub.img) {

@@ -1,6 +1,4 @@
-# 2 Utility functions ####
-# change input to:
-# vismot_summarise(df, measure_vars, group_vars)
+# Utility functions ####
 summary_mot <- function(df, measure_vars, group_vars){
   out_df <- tibble()
   for (i in measure_vars) {
@@ -65,8 +63,6 @@ transfer_pars <- function(user,default){
   pars.list <- c(user[user_pars], default[default_pars])
 }
 
-
-
 get_crop_pars <- function(df, pars.list){
   crop_pars <- NULL
   if (!is.null(pars.list$tracks)) {
@@ -118,7 +114,7 @@ process_img <- function(df,image, pars.list){
       tracks <- df %>% distinct(track) %>% pull()
     }
     
-    if (is.null(pars.list$projection) & pars.list$dimensions==3) {
+    if (is.null(pars.list$projection) & pars.list$dimensions == 3) {
       for (i in tracks) {# create cropped images and store as stack
         crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
         z <- df %>% filter(track == i,
@@ -178,19 +174,16 @@ process_img <- function(df,image, pars.list){
 
 
 plot_frame <- function(df, image, pars.list){
-  df <- df %>% mutate(X=X+0.5, Y=Y+0.5)
+  df <- df %>% mutate(X = X + 0.5, Y = Y + 0.5)
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
-
   # define background image
   bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
-  
   # filter for tracks
   if (!is.null(pars.list$tracks)) {
     df <- df %>% filter(track %in% pars.list$tracks)
   }
-
   # filter for track length
   if (is.numeric(pars.list$tracks.length)) {
     df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length)
@@ -237,16 +230,15 @@ plot_frame <- function(df, image, pars.list){
                                xmax = crop_pars[['x_max']],
                                ymin = crop_pars[['y_min']],
                                ymax = crop_pars[['y_max']]) +
-      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']]+0.5),
+      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']] + 0.5),
                          breaks = axis_ticks_x,
                          labels = axis_ticks_x*pars.list$scaling,
                          expand = c(0, 0)) +
-      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']]+0.5),
+      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']] + 0.5),
                          breaks = axis_ticks_y,
                          labels = axis_ticks_y*pars.list$scaling,
                          expand = c(0, 0))
   } else {
-    
     # set axis ticks
     axis_ticks_x <- seq(pars.list$axis.tick, pars.list$width, pars.list$axis.tick)
     axis_ticks_y <- seq(pars.list$axis.tick, pars.list$height, pars.list$axis.tick)
@@ -264,7 +256,6 @@ plot_frame <- function(df, image, pars.list){
                          breaks = c(1, axis_ticks_y),
                          labels = c(0, axis_ticks_y)*pars.list$scaling)
   }
-  
   # add tracks
   p <- p +
     geom_path(alpha = pars.list$tracks.alpha,
@@ -272,10 +263,9 @@ plot_frame <- function(df, image, pars.list){
     geom_point(data = df %>% filter(time == pars.list$frame - 1),
                alpha = pars.list$points.alpha,
                #stat = pars.list$points.stat,
-               position='identity',
+               position = 'identity',
                size = pars.list$points.size
                )
-  
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
@@ -294,7 +284,6 @@ plot_frame <- function(df, image, pars.list){
   if (is.factor(df[pars.list$par.map] %>% pull()) | is.character(df[pars.list$par.map] %>% pull()) ) {
     p <- p + scale_colour_viridis_d(na.value = 'red')
   }
-  
   # add scale bar
   if (pars.list$scale.bar == TRUE) {
     p <- p + geom_rect(xmin = pars.list$width - pars.list$scale.width - pars.list$scale.x,
@@ -307,26 +296,21 @@ plot_frame <- function(df, image, pars.list){
   return(p)
 }
 
-
 plot_frame_sub <- function(df, image, pars.list){
-  df <- df %>% mutate(X=X+0.5, Y=Y+0.5)
+  df <- df %>% mutate(X = X +  0.5, Y = Y + 0.5)
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
-
   # update tracks if not specified
   if (is.null(pars.list$tracks)) {
     pars.list$tracks <- df %>% distinct(track) %>% pull()
   }
-
   # filter for track length
   if (is.numeric(pars.list$tracks.length)) {
     df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length)
   }
-
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
-
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
     p <- ggplot(df %>% filter(time < pars.list$frame),
@@ -349,7 +333,6 @@ plot_frame_sub <- function(df, image, pars.list){
            color = pars.list$label.col,
            shape = str_to_sentence(pars.list$par.shape))
   }
-
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
@@ -368,13 +351,11 @@ plot_frame_sub <- function(df, image, pars.list){
   if (is.factor(df[pars.list$par.map] %>% pull()) | is.character(df[pars.list$par.map] %>% pull()) ) {
     p <- p + scale_colour_viridis_d(na.value = 'red')
   }
-
   # set theme
   p <- p + theme(plot.margin = unit(c(2,2,2,2),'mm'),
                  panel.grid.major = element_blank(),
                  panel.grid.minor = element_blank()) +
     coord_fixed()
-
   # get legend
   legend <- get_legend(p + geom_point())
 
@@ -401,7 +382,7 @@ plot_frame_sub <- function(df, image, pars.list){
                   y = pars.list$tracks.label.y,
                   label = pars.list$tracks[i],
                   col = pars.list$scale.color) +
-         coord_fixed()+
+         coord_fixed() +
          scale_x_continuous(limits = c(1, pars.list$sub.window),
                             expand = c(0, 0)) +
          scale_y_continuous(limits = c(1, pars.list$sub.window),
@@ -432,7 +413,6 @@ plot_frame_sub <- function(df, image, pars.list){
               axis.title = element_blank(),
               axis.text = element_blank(),
               axis.ticks = element_blank())
-      
       # add scale bars
       if (pars.list$scale.bar == TRUE) {
         p1 <- p1 + geom_rect(xmin = pars_plot[['x_max']] - pars.list$scale.width - pars.list$scale.x,
@@ -454,5 +434,4 @@ plot_frame_sub <- function(df, image, pars.list){
                          rel_widths = c(1, 0.1)))
   return(p2)
 }
-
 # _________________________ ####

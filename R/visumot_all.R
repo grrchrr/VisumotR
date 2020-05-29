@@ -25,9 +25,6 @@
 #'  file_name = 'hiv_tracking_angle'
 #'  )
 
-
-
-
 #' @export
 visumot_all <- function(df, images, frame_range = NULL,
                         display_frame = TRUE, display_summary = FALSE,
@@ -36,7 +33,6 @@ visumot_all <- function(df, images, frame_range = NULL,
                         save = TRUE, file_name = NULL,
                         width = 2000, height = 1200, rel_width = 1,
                         browse = FALSE, return = FALSE) {
-
   #' @param df dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}
   #' @param images \code{vector}: filenames of images ordered by frames/time
   #' @param frame_range \code{integer}: frames to be mapped; default=\code{NULL} maps full time/frame range found in \code{df}
@@ -53,11 +49,9 @@ visumot_all <- function(df, images, frame_range = NULL,
   #' @param return \code{logical}: return images-series as magick image-stack
 
   message(paste('Started visumotR: ', Sys.time(), sep = ''))
-
   # extracting parameter lists
   temp.dir.frame <- NULL
   temp.dir.sum <- NULL
-
   # extracting frames
   if (is.null(frame_range)) {
     warning('frame_range not specified, defaulting to maximal frame range...')
@@ -69,7 +63,6 @@ visumot_all <- function(df, images, frame_range = NULL,
     first_frame <- frame_range[1]
     last_frame <- frame_range[2]
   }
-
   # visumot_summary()
   if (display_summary == TRUE) {
     message('Running visumot_summary()...')
@@ -89,7 +82,7 @@ visumot_all <- function(df, images, frame_range = NULL,
             .export = c('visumot_summary', 'summary_mot', 'transfer_pars'),
             .packages = (.packages())
     ) %dopar% {
-      frame_stat <- image_graph(width = width*(1-rel_width), height = height, res = 100)
+      frame_stat <- image_graph(width = width*(1 - rel_width), height = height, res = 100)
       visumot_summary.list$frame <- i
       print(visumot_summary(df,
                             visumot_summary.list,
@@ -101,7 +94,6 @@ visumot_all <- function(df, images, frame_range = NULL,
     # stop cluster
     stopCluster(cl)
   }
-
   # visumot_frame()-plot
   if (display_frame == TRUE) {
     message('Running visumot_frame()...')
@@ -130,7 +122,6 @@ visumot_all <- function(df, images, frame_range = NULL,
     stopCluster(cl)
   }
   message(paste('Finished analysis: ', Sys.time(), sep = ''))
-
   # stack stuff
   message('Creating image stacks...')
   if (display_frame) {
@@ -139,7 +130,6 @@ visumot_all <- function(df, images, frame_range = NULL,
   if (display_summary) {
     images_sum <- list.files(temp.dir.sum, full.names = TRUE) %>% image_read()
   }
-
   if (display_summary & display_frame == TRUE) {
     stack <- image_append(c(images_frame[1],images_sum[1]))
     if (length(images_sum) > 1 & length(images_frame) > 1) {
@@ -149,7 +139,6 @@ visumot_all <- function(df, images, frame_range = NULL,
     }
   }
   message('Done.')
-
   # save stuff
   if (save == TRUE) {
     message('Saving images...')
@@ -175,7 +164,6 @@ visumot_all <- function(df, images, frame_range = NULL,
     }
     message(paste("Saved to: ", out_file, sep = ""))
   }
-
   # browse stuff
   if (browse == TRUE) {
     message('Initialized image browsing...')

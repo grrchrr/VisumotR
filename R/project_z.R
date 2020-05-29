@@ -1,4 +1,4 @@
-
+# Z-projection for 3D-image stacks
 project_z <- function(image, width, height, method, depth, weights=NULL) {
   
   methods <- list(mean = mean,
@@ -22,6 +22,7 @@ project_z <- function(image, width, height, method, depth, weights=NULL) {
   if (depth == 8) {
     return(image_read(projection/255))
   } 
+  
   if (depth == 16) {
     return(image_read(projection/65536))
   } 
