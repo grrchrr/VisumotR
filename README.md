@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lifecycle-alpha-orange.svg)
 <!-- badges: end -->
  
-VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally this package was intended to be used with live-cell microscopy images and cell-tracking data. But in general VisumotR can be used with any kind of data supplying a dataframe with trackIds, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
+VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally, this package was intended to be used with live-cell microscopy images and cell-tracking data. But in general VisumotR can be used with any kind of data supplying a dataframe with trackIds, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
 
 ![HIV-1 infected CD4+ T-cells in an complex collagen environment](images/animation.png)
 
