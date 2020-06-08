@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lifecycle-alpha-orange.svg)
 <!-- badges: end -->
  
-VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally this package was intended to be used with live-cell microscopy images and cell-tracking data. But in general VisumotR can be used with any kind of data supplying a dataframe with trackIds, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
+VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally, this package was intended to be used with live-cell microscopy images and cell-tracking data. But in general VisumotR can be used with any kind of data supplying a dataframe with trackIds, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
 
 ![HIV-1 infected CD4+ T-cells in an complex collagen environment](images/animation.png)
 
@@ -12,7 +12,7 @@ The package acts as a wrapper for annotating provided images with several, modif
 ## Display modes
 
 ### Mapping color and shape
-VisumotR allows for several display modes. The most common is shown above where the complete image is captured and one continous parameter is mapped on the track color. In addition, it is also possible to map discrete variables on shape and/or color or continous variables on size and/or alpha. In this example, contact-state and infection-status were mapped to color and shape.
+VisumotR allows for several display modes. The most common is shown above where the complete image is captured and one continous parameter is mapped on the track color. In addition, it is also possible to map discrete variables on shape and/or color or continous variables on size and/or alpha. In this example, contact-state and infection-status of tracked cells were mapped to color and shape.
 
 ![Mapping contact state and infection state](images/shape_color.jpg)
 
