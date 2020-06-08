@@ -10,15 +10,17 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: 
+    R (>= 3.6),
     tidyverse,
     grid,
     gridExtra,
-    ggecho,
     rlang,
     magick,
-    facetscales,
     cowplot,
     parallel,
     foreach,
     doSNOW
+Suggests:
+    ggecho,
+    facetscales
 RoxygenNote: 7.1.0

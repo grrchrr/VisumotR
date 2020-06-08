@@ -186,7 +186,7 @@ plot_frame <- function(df, image, pars.list){
   }
   # filter for track length
   if (is.numeric(pars.list$tracks.length)) {
-    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length)
+    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length + 1)
   }
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
@@ -307,7 +307,7 @@ plot_frame_sub <- function(df, image, pars.list){
   }
   # filter for track length
   if (is.numeric(pars.list$tracks.length)) {
-    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length)
+    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length + 1)
   }
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
