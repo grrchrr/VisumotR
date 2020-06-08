@@ -185,8 +185,10 @@ plot_frame <- function(df, image, pars.list){
     df <- df %>% filter(track %in% pars.list$tracks)
   }
   # filter for track length
-  if (!is.null(pars.list$tracks.length) | pars.list$tracks.length != 0) {
-    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
+  if (!is.null(pars.list$tracks.length)) {
+    if (pars.list$tracks.length != 0) {
+      df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
+    }
   }
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
@@ -318,8 +320,10 @@ plot_frame_sub <- function(df, image, pars.list){
     pars.list$tracks <- df %>% distinct(track) %>% pull()
   }
   # filter for track length
-  if (!is.null(pars.list$tracks.length) | pars.list$tracks.length != 0) {
+  if (!is.null(pars.list$tracks.length)) {
+    if (pars.list$tracks.length != 0) {
     df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
+    }
   }
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
