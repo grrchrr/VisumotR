@@ -185,10 +185,8 @@ plot_frame <- function(df, image, pars.list){
     df <- df %>% filter(track %in% pars.list$tracks)
   }
   # filter for track length
-  if (!is.null(pars.list$tracks.length)) {
-    if (pars.list$tracks.length != 0) {
+  if (is.numeric(pars.list$tracks.length) & !identical(pars.list$tracks.length,0)) {
       df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
-    }
   }
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
@@ -220,11 +218,7 @@ plot_frame <- function(df, image, pars.list){
     coord_fixed()
   # create either cropped or full background image with scales
   if (pars.list$crop) {
-    print(pars.list)
-    print(df)
     crop_pars <- pars.list$crop_pars
-    print(crop_pars)
-    print(image)
     axis_ticks_x <- seq(crop_pars[['x_min']], crop_pars[['x_max']], pars.list$axis.tick)
     axis_ticks_y <- seq(crop_pars[['y_min']], crop_pars[['y_max']], pars.list$axis.tick)
     p <- p + annotation_custom(grob = bg,
@@ -259,27 +253,23 @@ plot_frame <- function(df, image, pars.list){
                          labels = c(0, axis_ticks_y)*pars.list$scaling)
   }
   # add tracks
-  if (pars.list$tracks.length == 0) {
-    p <- p +
-      geom_point(data = df %>% filter(time == pars.list$frame - 1),
-                 alpha = pars.list$points.alpha,
-                 #stat = pars.list$points.stat,
-                 position = 'identity',
-                 size = pars.list$points.size
-      ) 
+  if (!identical(pars.list$tracks.length,0)) {
+      p <- p +
+        geom_path(alpha = pars.list$tracks.alpha,
+                  size = pars.list$tracks.size) +
+        geom_point(data = df %>% filter(time == pars.list$frame - 1),
+                   alpha = pars.list$points.alpha,
+                   stat = pars.list$points.stat,
+                   position = 'identity',
+                   size = pars.list$points.size)
   } else {
     p <- p +
-      geom_path(alpha = pars.list$tracks.alpha,
-                size = pars.list$tracks.size) +
       geom_point(data = df %>% filter(time == pars.list$frame - 1),
                  alpha = pars.list$points.alpha,
-                 #stat = pars.list$points.stat,
+                 stat = pars.list$points.stat,
                  position = 'identity',
-                 size = pars.list$points.size
-      )
+                 size = pars.list$points.size)
   }
-    
-  
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
@@ -320,10 +310,8 @@ plot_frame_sub <- function(df, image, pars.list){
     pars.list$tracks <- df %>% distinct(track) %>% pull()
   }
   # filter for track length
-  if (!is.null(pars.list$tracks.length)) {
-    if (pars.list$tracks.length != 0) {
-    df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
-    }
+  if (is.numeric(pars.list$tracks.length) & !identical(pars.list$tracks.length,0)) {
+    df <- df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
   }
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
@@ -382,7 +370,7 @@ plot_frame_sub <- function(df, image, pars.list){
                      width = unit(1, "npc"),
                      height = unit(1, "npc"),
                      interpolate = TRUE)
-     if (length(pars_plot[['string']]) == 0) {
+     if (length(pars_plot[['string']]) == 0) { # if track not present, empty window
        plots[[i]] <- p +
          annotation_custom(bg,
                            xmin = -Inf,
@@ -405,30 +393,30 @@ plot_frame_sub <- function(df, image, pars.list){
                             expand = c(0, 0)) 
      } else {
        # add tracks
-       if (pars.list$tracks.length == 0) {
-         p1 <- p +
-           annotation_custom(bg,
-                             xmin = pars_plot[['x_min']],
-                             xmax = pars_plot[['x_max']],
-                             ymin = pars_plot[['y_min']],
-                             ymax = pars_plot[['y_max']]) +
-           annotate("text",
-                    x = pars_plot[['x_min']] + pars.list$tracks.label.x,
-                    y = pars_plot[['y_min']] + pars.list$tracks.label.y,
-                    label = pars.list$tracks[i],
-                    col = pars.list$scale.color) +
-           geom_point(data = df %>% filter(time == pars.list$frame - 1),
-                      alpha = pars.list$points.alpha,
-                      stat = pars.list$points.stat,
-                      size = pars.list$points.size) +
-           scale_x_continuous(limits = c(pars_plot[['x_min']], pars_plot[['x_max']]),
-                              expand = c(0, 0)) +
-           scale_y_continuous(limits = c(pars_plot[['y_min']],pars_plot[['y_max']]),
-                              expand = c(0, 0)) +
-           theme(legend.position = 'none',
-                 axis.title = element_blank(),
-                 axis.text = element_blank(),
-                 axis.ticks = element_blank())
+        if (identical(pars.list$tracks.length,0)) {
+           p1 <- p +
+             annotation_custom(bg,
+                               xmin = pars_plot[['x_min']],
+                               xmax = pars_plot[['x_max']],
+                               ymin = pars_plot[['y_min']],
+                               ymax = pars_plot[['y_max']]) +
+             annotate("text",
+                      x = pars_plot[['x_min']] + pars.list$tracks.label.x,
+                      y = pars_plot[['y_min']] + pars.list$tracks.label.y,
+                      label = pars.list$tracks[i],
+                      col = pars.list$scale.color) +
+             geom_point(data = df %>% filter(time == pars.list$frame - 1),
+                        alpha = pars.list$points.alpha,
+                        stat = pars.list$points.stat,
+                        size = pars.list$points.size) +
+             scale_x_continuous(limits = c(pars_plot[['x_min']], pars_plot[['x_max']]),
+                                expand = c(0, 0)) +
+             scale_y_continuous(limits = c(pars_plot[['y_min']],pars_plot[['y_max']]),
+                                expand = c(0, 0)) +
+             theme(legend.position = 'none',
+                   axis.title = element_blank(),
+                   axis.text = element_blank(),
+                   axis.ticks = element_blank())
        } else {
          p1 <- p +
            annotation_custom(bg,
