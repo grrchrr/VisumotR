@@ -28,7 +28,7 @@ visumot_frame <- function(df, ...) {
 
   # set default parameters
   pars.list.default <- list(image = NULL, stack=FALSE, image_depth = 8, image_normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
-                            par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.unit = NULL,
+                            par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.min=NaN, par.unit = NULL,
                             crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
                             points.size = 1, points.alpha = 0.9, points.stat = 'echo', points.shape = 16, 
@@ -107,6 +107,7 @@ visumot_frame <- function(df, ...) {
               '\tassuming: df(id, time, X, Y, mapping_parameters, ...)', call. = FALSE)
       if (is.numeric(df[pars.list$par.map] %>% pull())) {
         pars.list$par.max <- df %>% select(c(pars.list$par.map)) %>% pull() %>% max(na.rm = TRUE)
+        pars.list$par.min <- df %>% select(c(pars.list$par.map)) %>% pull() %>% min(na.rm = TRUE)
       }
     } else {
       pars.list$par.map <- NULL

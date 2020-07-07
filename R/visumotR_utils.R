@@ -271,14 +271,14 @@ plot_frame <- function(df, image, pars.list){
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
-      p <- p + scale_color_viridis_c(limits = c(0,pars.list$par.max),
+      p <- p + scale_color_viridis_c(limits = c(pars.list$par.min,pars.list$par.max),
                                      na.value = 'red',
                                      guide = guide_colorbar(title.position = 'left',
                                                             title.theme = element_text(angle = 90),
                                                             label.position = 'right',
                                                             title.hjust = 0.5))
     } else {
-      p <- p + scale_colour_viridis_c(limits = c(0,pars.list$par.max),
+      p <- p + scale_colour_viridis_c(limits = c(pars.list$par.min,pars.list$par.max),
                                       na.value = 'red')
     }
   }
