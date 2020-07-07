@@ -54,19 +54,15 @@ visumot_summary <- function(df, ...) {
     pars.list <- transfer_pars(pars.list.user,pars.list.default)
   }
 
-
-
-
-
-
-
-
   # extracting values for defaults
   if (is.null(pars.list$frame)) {
-    pars.list$frame <- df %>% select(time) %>% pull() %>% max() + 1
-    warning(paste('frame not specified, defaulting to latest frame in dataset:', pars.list$frame), call. = FALSE)
+    timepoints <- df %>% select(time) %>% pull() 
+    pars.list$frame <- max(match(timepoints, sort(unique(timepoints))))
+    message(paste('frame not specified, defaulting to latest frame in dataset:', pars.list$frame), call. = FALSE)
   }
-
+  # add frames to df
+  df <- df %>% mutate(frame=match(time, sort(unique(time))))
+  
   # set grouping variables
   if (is.null(pars.list$group.vars)) {
     pars.list$group.vars <- colnames(df)[2]
@@ -96,8 +92,6 @@ visumot_summary <- function(df, ...) {
     y_min <-  df %>% select(pars.list$par.numeric) %>% na.omit() %>%
       summarise_all(min) %>% as.list()
   }
-
-
 
   # setting y_scales
   scales_y <- mapply(function(x,y){scale_y_continuous(limits = c(x,y))}, y_min, y_max)
@@ -131,7 +125,6 @@ visumot_summary <- function(df, ...) {
     plot <- plot + theme(plot.margin = unit(c(5,5,5,5),'mm'))
   }
 
-
   # add ribbon
   if (pars.list$ribbon) {
     plot <- plot + geom_ribbon(aes(ymin = mean - sd,
@@ -147,7 +140,6 @@ visumot_summary <- function(df, ...) {
     plot <- plot + xlab(str_to_sentence(pars.list$group.vars))
   }
 
-
   # check df for NAs and remove them for certain timepoints (beginning of plotting area)
   if (df_plot %>% filter(time == pars.list$frame - 1) %>% na.omit() %>% nrow() > 0) {
     df_plot <- df_plot %>% na.omit()
@@ -156,7 +148,6 @@ visumot_summary <- function(df, ...) {
   if (!is.null(pars.list$tracks)) {
     df_plot <- df_plot %>% filter(track %in% pars.list$tracks)
   }
-
   # add jitter
   if (any(grepl('jitter',pars.list$geom))) {
     p <- plot +

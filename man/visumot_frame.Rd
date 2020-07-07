@@ -11,6 +11,12 @@ visumot_frame(df, ...)
 
 \item{image}{\code{character}: filename of image}
 
+\item{stack}{\code{logical}: default: \code{FALSE}, single image file provided if time-resolved imagestack is used, set: \code{TRUE}}
+
+\item{image_depth}{\code{numeric}: set image bit-depth; just important if Z-projections are calculated}
+
+\item{image_normalize}{\code{logical}: normalize image}
+
 \item{frame}{\code{integer}: frame to be mapped}
 
 \item{tracks}{\code{vector}: defining tracks to be displayed}
@@ -60,7 +66,7 @@ visumot_frame(df, ...)
 \item{dimensions}{\code{numeric}: specify whether the images are 2D or 3D. 
 If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}}
 
-\item{manual.Z}{\code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used}
+\item{manual.z}{\code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used}
 
 \item{scale.bar}{\code{logical}: show scalebar; default: \code{FALSE}}
 

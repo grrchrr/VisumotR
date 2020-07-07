@@ -7,6 +7,7 @@
 visumot_all(
   df,
   images,
+  stack = FALSE,
   frame_range = NULL,
   display_frame = TRUE,
   display_summary = FALSE,

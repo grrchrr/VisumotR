@@ -81,8 +81,8 @@ get_crop_pars <- function(df, pars.list){
       window_half <- pars.list$sub.window/2
       crop_pars <- df %>%
         group_by(track) %>%
-        filter(time <= pars.list$frame - 1) %>%
-        filter(time == max(time)) %>%
+        filter(frame <= pars.list$frame) %>%
+        filter(frame == max(frame)) %>%
         mutate(X = ifelse(X < window_half, window_half, # if windows exceeds image boundaries...
                           ifelse(pars.list$width - X < window_half, pars.list$width - window_half, X)),
                Y = ifelse(Y < window_half, window_half,
@@ -113,12 +113,11 @@ process_img <- function(df,image, pars.list){
     } else {
       tracks <- df %>% distinct(track) %>% pull()
     }
-    
     if (is.null(pars.list$projection) & pars.list$dimensions == 3) {
       for (i in tracks) {# create cropped images and store as stack
         crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
         z <- df %>% filter(track == i,
-                           time == pars.list$frame - 1) %>% select(Z) %>% pull()
+                           frame == pars.list$frame) %>% select(Z) %>% pull()
         z_low <- as.integer(z)
         z_up <- z_low + 1
         weights <- c(1 - (z - z_low), 1 - (z_up - z_low))
@@ -145,7 +144,7 @@ process_img <- function(df,image, pars.list){
       } else {# if track not present yet, add blank image
         # get crop string for first occurence of track
         window_half <- pars.list$sub.window / 2
-        crop_string_track <- df %>% filter(track == i, time == min(time[track == i])) %>%
+        crop_string_track <- df %>% filter(track == i, frame == min(frame[track == i])) %>%
         mutate(X = ifelse(X < window_half, window_half, # if windows exceeds image boundaries...
                           ifelse(pars.list$width - X < window_half, pars.list$width - window_half, X)),
                Y = ifelse(Y < window_half, window_half,
@@ -163,7 +162,6 @@ process_img <- function(df,image, pars.list){
     }
   } else {
     if (pars.list$crop) {
-      print(crop_string(pars.list$crop_pars))
       image <- image %>% image_crop(crop_string(pars.list$crop_pars)) %>% image_flip()
     } else {
       image <- image %>% image_flip()
@@ -186,11 +184,11 @@ plot_frame <- function(df, image, pars.list){
   }
   # filter for track length
   if (is.numeric(pars.list$tracks.length) & !identical(pars.list$tracks.length,0)) {
-      df <-  df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
+      df <-  df %>% filter(frame >= pars.list$frame - pars.list$tracks.length)
   }
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
-    p <- ggplot(df %>% filter(time < pars.list$frame),
+    p <- ggplot(df %>% filter(frame <= pars.list$frame),
                 aes_(x = ~X,
                      y = ~Y,
                      group = ~track,
@@ -199,7 +197,7 @@ plot_frame <- function(df, image, pars.list){
            y = paste0('Y [', pars.list$unit,']'),
            color = pars.list$label.col)
   } else {
-    p <- ggplot(df %>% filter(time < pars.list$frame),
+    p <- ggplot(df %>% filter(frame <= pars.list$frame),
                 aes_(x = ~X,
                      y = ~Y,
                      group = ~track,
@@ -257,14 +255,14 @@ plot_frame <- function(df, image, pars.list){
       p <- p +
         geom_path(alpha = pars.list$tracks.alpha,
                   size = pars.list$tracks.size) +
-        geom_point(data = df %>% filter(time == pars.list$frame - 1),
+        geom_point(data = df %>% filter(frame == pars.list$frame),
                    alpha = pars.list$points.alpha,
                    stat = pars.list$points.stat,
                    position = 'identity',
                    size = pars.list$points.size)
   } else {
     p <- p +
-      geom_point(data = df %>% filter(time == pars.list$frame - 1),
+      geom_point(data = df %>% filter(frame == pars.list$frame),
                  alpha = pars.list$points.alpha,
                  stat = pars.list$points.stat,
                  position = 'identity',
@@ -311,13 +309,13 @@ plot_frame_sub <- function(df, image, pars.list){
   }
   # filter for track length
   if (is.numeric(pars.list$tracks.length) & !identical(pars.list$tracks.length,0)) {
-    df <- df %>% filter(time >= pars.list$frame - pars.list$tracks.length - 1)
+    df <- df %>% filter(frame >= pars.list$frame - pars.list$tracks.length)
   }
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
-    p <- ggplot(df %>% filter(time < pars.list$frame),
+    p <- ggplot(df %>% filter(frame <= pars.list$frame),
                 aes_(x = ~X,
                      y = ~Y,
                      group = ~track,
@@ -326,7 +324,7 @@ plot_frame_sub <- function(df, image, pars.list){
            y = paste0('Y [', pars.list$unit,']'),
            color = pars.list$label.col)
   } else {
-    p <- ggplot(df %>% filter(time < pars.list$frame),
+    p <- ggplot(df %>% filter(frame <= pars.list$frame),
                 aes_(x = ~X,
                      y = ~Y,
                      group = ~track,
@@ -362,11 +360,10 @@ plot_frame_sub <- function(df, image, pars.list){
     coord_fixed()
   # get legend
   legend <- get_legend(p + geom_point())
-
   # subplots
   for (i in c(1:length(pars.list$tracks))) {
     pars_plot <- pars.list$crop_pars %>% filter(track == pars.list$tracks[i]) %>% select(-track) %>% as.list()
-    bg <- rasterGrob(image[i + 1],
+    bg <- rasterGrob(image[i + 1], # index skipped original uncropped image
                      width = unit(1, "npc"),
                      height = unit(1, "npc"),
                      interpolate = TRUE)
@@ -405,7 +402,7 @@ plot_frame_sub <- function(df, image, pars.list){
                       y = pars_plot[['y_min']] + pars.list$tracks.label.y,
                       label = pars.list$tracks[i],
                       col = pars.list$scale.color) +
-             geom_point(data = df %>% filter(time == pars.list$frame - 1),
+             geom_point(data = df %>% filter(frame == pars.list$frame),
                         alpha = pars.list$points.alpha,
                         stat = pars.list$points.stat,
                         size = pars.list$points.size) +
@@ -431,7 +428,7 @@ plot_frame_sub <- function(df, image, pars.list){
                     col = pars.list$scale.color) +
            geom_path(alpha = pars.list$tracks.alpha,
                      size = pars.list$tracks.size) +
-           geom_point(data = df %>% filter(time == pars.list$frame - 1),
+           geom_point(data = df %>% filter(frame == pars.list$frame),
                       alpha = pars.list$points.alpha,
                       stat = pars.list$points.stat,
                       size = pars.list$points.size) +
@@ -444,7 +441,6 @@ plot_frame_sub <- function(df, image, pars.list){
                  axis.text = element_blank(),
                  axis.ticks = element_blank())
            } 
-
       # add scale bars
       if (pars.list$scale.bar == TRUE) {
         p1 <- p1 + geom_rect(xmin = pars_plot[['x_max']] - pars.list$scale.width - pars.list$scale.x,
@@ -459,11 +455,7 @@ plot_frame_sub <- function(df, image, pars.list){
   }
   # putting all plots together
   collage <- arrangeGrob(grobs = plots, ncol = pars.list$sub.col)
-  return(plot_grid(collage, NULL , legend, NULL, rel_widths = c(10, 0.5, 1, 0.5), ncol = 4))
-  # add legend
-  p2 <- ggdraw(plot_grid(collage,
-                         plot_grid(legend, ncol = 1),
-                         rel_widths = c(1, 0.1)))
+  p2 <- plot_grid(collage, NULL , legend, NULL, rel_widths = c(10, 0.5, 1, 0.5), ncol = 4)
   return(p2)
 }
 # _________________________ ####

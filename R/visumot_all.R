@@ -26,7 +26,7 @@
 #'  )
 
 #' @export
-visumot_all <- function(df, images, frame_range = NULL,
+visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
                         display_frame = TRUE, display_summary = FALSE,
                         visumot_frame.list = NULL,
                         visumot_summary.list = NULL,
@@ -54,11 +54,11 @@ visumot_all <- function(df, images, frame_range = NULL,
   temp.dir.sum <- NULL
   # extracting frames
   if (is.null(frame_range)) {
-    warning('frame_range not specified, defaulting to maximal frame range...')
-    last_frame <- df %>% select(time) %>% pull() %>% max()
-    last_frame <- last_frame + 1
-    first_frame <- df %>% select(time) %>% pull() %>% min()
-    first_frame <- first_frame + 1
+    message('frame_range not specified, defaulting to maximal frame range found in dataset')
+    timepoints <- df %>% select(time) %>% pull() 
+    frames <- match(timepoints, sort(unique(timepoints)))
+    first_frame <- min(frames)
+    last_frame <- max(frames)
   } else {
     first_frame <- frame_range[1]
     last_frame <- frame_range[2]
@@ -110,7 +110,12 @@ visumot_all <- function(df, images, frame_range = NULL,
             .export = c('visumot_frame', 'crop_string', 'crop_string_df','get_crop_pars','transfer_pars','process_img','plot_frame','plot_frame_sub'),
             .packages = (.packages())) %dopar% {
               frames_map <- image_graph(width = width*rel_width, height = height, res = 100)
-              visumot_frame.list$image <- images[i]
+              if(stack==TRUE){
+                visumot_frame.list$image <- images
+                visumot_frame.list$stack <- TRUE
+              } else {
+                visumot_frame.list$image <- images[i]
+              }
               visumot_frame.list$frame <- i
               print(visumot_frame(df,
                                   visumot_frame.list,

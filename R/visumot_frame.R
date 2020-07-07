@@ -27,7 +27,7 @@
 visumot_frame <- function(df, ...) {
 
   # set default parameters
-  pars.list.default <- list(image = NULL, image_depth = 8, image_normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
+  pars.list.default <- list(image = NULL, stack=FALSE, image_depth = 8, image_normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.unit = NULL,
                             crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
@@ -40,6 +40,9 @@ visumot_frame <- function(df, ...) {
 
   #' @param df dataframe of the form: \code{df(track, time, X, Y, (Z,) mapping_parameters, ...)}
   #' @param image \code{character}: filename of image
+  #' @param stack \code{logical}: default: \code{FALSE}, single image file provided if time-resolved imagestack is used, set: \code{TRUE}
+  #' @param image_depth \code{numeric}: set image bit-depth; just important if Z-projections are calculated
+  #' @param image_normalize \code{logical}: normalize image
   #' @param frame \code{integer}: frame to be mapped
   #' @param tracks \code{vector}: defining tracks to be displayed
   #' @param par.map \code{character}: specifying parameter in \code{df} to be visualized by color
@@ -65,7 +68,7 @@ visumot_frame <- function(df, ...) {
   #' @param scaling \code{numeric}: scaling factor for unit; default: \code{1}
   #' @param dimensions \code{numeric}: specify whether the images are 2D or 3D. 
   #' If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}
-  #' @param manual.Z \code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used 
+  #' @param manual.z \code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used 
   #' @param scale.bar \code{logical}: show scalebar; default: \code{FALSE}
   #' @param scale.width \code{numeric}: width of scalebar; default: \code{40}
   #' @param scale.height \code{numeric}: height of scalebar; default: \code{10}
@@ -111,27 +114,39 @@ visumot_frame <- function(df, ...) {
               'color mapping disabled...', call. = FALSE)
     }
   }
+  # add frames to df
+  df <- df %>% mutate(frame=match(time, sort(unique(time))))
   # read in image
   image <- image_read(pars.list$image)
+  # select image from stack
+  if(pars.list$stack==TRUE & pars.list$dimension == 2){
+  image <- image[pars.list$frame]  
+  }
   # normalize image
   if (pars.list$image_normalize) {
     image <- image %>% image_normalize()
   }
   # get pars for single imagefile
   if (pars.list$dimensions == 2) {
-    pars.list$width <- image_info(image) %>% select(width) %>% pull()
-    pars.list$height <- image_info(image) %>% select(height) %>% pull()
+    pars.list$width <- image_info(image) %>% select(width) %>% pull() %>% unique()
+    pars.list$height <- image_info(image) %>% select(height) %>% pull() %>% unique()
+    if (length(pars.list$width) != 1 | length(pars.list$height) != 1){
+      stop('VisumotR detected different images sizes among the dataset and stopped. Please check your image files.')
+    }
   }
   # get pars for image stack
   if (pars.list$dimensions == 3) {
     pars.list$width <- image_info(image) %>% select(width) %>% pull() %>% unique()
     pars.list$height <- image_info(image) %>% select(height) %>% pull() %>% unique()
+    if (length(pars.list$width) != 1 | length(pars.list$height) != 1){
+      stop('VisumotR detected different images sizes among the dataset and stopped. Please check your image files.')
+    }
     # calculate z-projection
     if (!is.null(pars.list$projection)) {
       image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
     }
   }
-  # calibrate images
+  # calibrate images, just for debugging
   if (pars.list$calibrate) {
     image <- calibrate_img(df,pars.list$width,pars.list$height,pars.list)
   }
