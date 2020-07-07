@@ -31,7 +31,7 @@ visumot_frame <- function(df, ...) {
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.min=NaN, par.unit = NULL,
                             crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
-                            points.size = 1, points.alpha = 0.9, points.stat = 'echo', points.shape = 16, 
+                            points.size = 1, points.alpha = 0.8, points.stat = 'identity', points.shape = 16, 
                             axis.tick = 100, axis.display = TRUE, axis.labs = TRUE, calibrate=FALSE,
                             unit = 'px', scaling = 1, dimensions = 2, projection = NULL, manual.z = NULL,
                             track.label = TRUE, tracks.label.x = 10, tracks.label.y = 10,
