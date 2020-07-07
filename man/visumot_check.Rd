@@ -4,7 +4,7 @@
 \alias{visumot_check}
 \title{visumot_check}
 \usage{
-visumot_check(df, images, stack = FALSE, dimensions = 2)
+visumot_check(df, images, stack_time = FALSE, dimensions = 2)
 }
 \arguments{
 \item{df}{dataframe of the form: \code{df(track, time, X, Y, (Z,) mapping_parameters, ...)}}

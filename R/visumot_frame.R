@@ -1,7 +1,3 @@
-# Mapping one frame
-
-
-
 #' @title visumot_frame
 #' @description With visumot_frame, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint. 
 #' @details  To be written...
@@ -27,9 +23,9 @@
 visumot_frame <- function(df, ...) {
 
   # set default parameters
-  pars.list.default <- list(image = NULL, stack=FALSE, image_depth = 8, image_normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
+  pars.list.default <- list(image = NULL, stack=FALSE, image.depth = 8, image.normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.min=NaN, par.unit = NULL,
-                            crop = FALSE, crop_pars = NULL, sub.img = FALSE , sub.window = 200, sub.col = 3,
+                            crop = FALSE, sub.img = FALSE , sub.window = 200, sub.col = 3,
                             tracks.size = 1, tracks.alpha = 0.5, tracks.length = NULL,
                             points.size = 1, points.alpha = 0.8, points.stat = 'identity', points.shape = 16, 
                             axis.tick = 100, axis.display = TRUE, axis.labs = TRUE, calibrate=FALSE,
@@ -41,8 +37,8 @@ visumot_frame <- function(df, ...) {
   #' @param df dataframe of the form: \code{df(track, time, X, Y, (Z,) mapping_parameters, ...)}
   #' @param image \code{character}: filename of image
   #' @param stack \code{logical}: default: \code{FALSE}, single image file provided if time-resolved imagestack is used, set: \code{TRUE}
-  #' @param image_depth \code{numeric}: set image bit-depth; just important if Z-projections are calculated
-  #' @param image_normalize \code{logical}: normalize image
+  #' @param image.depth \code{numeric}: set image bit-depth; just important if Z-projections are calculated
+  #' @param image.normalize \code{logical}: normalize image
   #' @param frame \code{integer}: frame to be mapped
   #' @param tracks \code{vector}: defining tracks to be displayed
   #' @param par.map \code{character}: specifying parameter in \code{df} to be visualized by color
@@ -79,6 +75,7 @@ visumot_frame <- function(df, ...) {
 
   # get user input
   pars.list.user <- list(...)
+  
   # check if all arguments were passed in a list or not
   if (length(pars.list.user) == 0) {
     pars.list <- pars.list.default
@@ -114,17 +111,31 @@ visumot_frame <- function(df, ...) {
       warning('par.map not specified...\n','no mapping parameter found\n',
               'color mapping disabled...', call. = FALSE)
     }
+  } else {
+    # find min value for given parameter
+    if(is.nan(pars.list$par.min)){
+      pars.list$min <- df %>% select(c(pars.list$par.map)) %>% pull() %>% min(na.rm = TRUE)
+    }
+    # find max value for given parameter
+    if(is.nan(pars.list$par.max)){
+      pars.list$max <- df %>% select(c(pars.list$par.map)) %>% pull() %>% max(na.rm = TRUE)
+    }
   }
+  
+ 
+  
   # add frames to df
   df <- df %>% mutate(frame=match(time, sort(unique(time))))
+  
   # read in image
   image <- image_read(pars.list$image)
+  
   # select image from stack
   if(pars.list$stack==TRUE & pars.list$dimension == 2){
   image <- image[pars.list$frame]  
   }
   # normalize image
-  if (pars.list$image_normalize) {
+  if (pars.list$image.normalize) {
     image <- image %>% image_normalize()
   }
   # get pars for single imagefile
@@ -144,17 +155,19 @@ visumot_frame <- function(df, ...) {
     }
     # calculate z-projection
     if (!is.null(pars.list$projection)) {
-      image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image_depth)
+      image <- project_z(image, pars.list$width, pars.list$height, pars.list$projection, pars.list$image.depth)
     }
   }
   # calibrate images, just for debugging
   if (pars.list$calibrate) {
-    image <- calibrate_img(df,pars.list$width,pars.list$height,pars.list)
+    image <- calibrate_img(df, pars.list$width, pars.list$height, pars.list)
   }
   # get cropping pars
-  pars.list$crop_pars <- get_crop_pars(df,pars.list)
+  pars.list$crop_pars <- get_crop_pars(df, pars.list)
+  
   # image processing
   image <- process_img(df,image, pars.list)
+  
   # plot according to parameters
   suppressMessages(suppressWarnings(
     if (pars.list$sub.img) {

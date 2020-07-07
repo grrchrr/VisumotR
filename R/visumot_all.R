@@ -1,10 +1,8 @@
-# wrapper to run over image series
-
 #' @title visumot_all
 #' @description Creates time-resolved images series of tracking data with modifiable parameter mapping. 
 #' \code{visumot_all} is a wrapper function for \code{\link{visumot_frame}} and \code{\link{visumot_summary}}. User parameters for both
 #' functions can be passed via the lists \code{visumot_frame.list} and \code{visumot_summary.list}.
-#' @details   
+#' @details To be written...   
 #' @examples
 #' # import tracking data
 #' df <- read.csv('hiv_tracking.csv')
@@ -52,6 +50,7 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
   # extracting parameter lists
   temp.dir.frame <- NULL
   temp.dir.sum <- NULL
+  
   # extracting frames
   if (is.null(frame_range)) {
     message('frame_range not specified, defaulting to maximal frame range found in dataset')
@@ -127,6 +126,7 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
     stopCluster(cl)
   }
   message(paste('Finished analysis: ', Sys.time(), sep = ''))
+  
   # stack stuff
   message('Creating image stacks...')
   if (display_frame) {
@@ -144,6 +144,7 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
     }
   }
   message('Done.')
+  
   # save stuff
   if (save == TRUE) {
     message('Saving images...')
@@ -186,6 +187,7 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
   unlink(temp.dir.frame, recursive = TRUE)
   unlink(temp.dir.sum, recursive = TRUE)
   message('Deleted temp_files.')
+  
   # return stuff
   if (return == TRUE) {
     message('Returning image stack...')

@@ -106,7 +106,6 @@ get_crop_pars <- function(df, pars.list){
 }
 
 process_img <- function(df,image, pars.list){
-  # image <- image %>% image_apply(image_crop, geometry=crop_string_df(0,pars.list$width,0,pars.list$height))
   if (pars.list$sub.img) {
     if (!is.null(pars.list$tracks)) {
       tracks <- pars.list$tracks
@@ -133,7 +132,6 @@ process_img <- function(df,image, pars.list){
       }
       image <- image_process
     }
-    
     for (i in tracks) {# create cropped images and store as stack
       crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
       if (length(crop_string_track) == 1) {
@@ -172,13 +170,17 @@ process_img <- function(df,image, pars.list){
 
 
 plot_frame <- function(df, image, pars.list){
+  # set coodinates to center of pixels 
   df <- df %>% mutate(X = X + 0.5, Y = Y + 0.5)
+  
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
-  # define background image
+ 
+   # define background image
   bg <- rasterGrob(image, width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
-  # filter for tracks
+ 
+   # filter for tracks
   if (!is.null(pars.list$tracks)) {
     df <- df %>% filter(track %in% pars.list$tracks)
   }
@@ -214,6 +216,7 @@ plot_frame <- function(df, image, pars.list){
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank()) +
     coord_fixed()
+  
   # create either cropped or full background image with scales
   if (pars.list$crop) {
     crop_pars <- pars.list$crop_pars
@@ -299,10 +302,13 @@ plot_frame <- function(df, image, pars.list){
 }
 
 plot_frame_sub <- function(df, image, pars.list){
+  # set coodinates to center of pixels 
   df <- df %>% mutate(X = X +  0.5, Y = Y + 0.5)
+  
   # set labeling string
   pars.list$label.col <- ifelse(is.null(pars.list$par.unit) == TRUE, str_to_sentence(pars.list$par.map),
                                 str_c(str_to_sentence(pars.list$par.map),' [',pars.list$par.unit, ']'))
+  
   # update tracks if not specified
   if (is.null(pars.list$tracks)) {
     pars.list$tracks <- df %>% distinct(track) %>% pull()
@@ -313,6 +319,7 @@ plot_frame_sub <- function(df, image, pars.list){
   }
   # set up list for subplots
   plots <- vector("list",length = length(pars.list$tracks))
+  
   # set aesthetics
   if (is.null(pars.list$par.shape)) {
     p <- ggplot(df %>% filter(frame <= pars.list$frame),
@@ -338,14 +345,14 @@ plot_frame_sub <- function(df, image, pars.list){
   # add continous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
-      p <- p + scale_color_viridis_c(limits = c(0,pars.list$par.max),
+      p <- p + scale_color_viridis_c(limits = c(pars.list$par.min, pars.list$par.max),
                                      na.value = 'red',
                                      guide = guide_colorbar(title.position = 'left',
                                                             title.theme = element_text(angle = 90),
                                                             label.position = 'right',
                                                             title.hjust = 0.5))
     } else {
-      p <- p + scale_colour_viridis_c(limits = c(0,pars.list$par.max),
+      p <- p + scale_colour_viridis_c(limits = c(pars.list$par.min, pars.list$par.max),
                                       na.value = 'red')
     }
   }
@@ -358,8 +365,10 @@ plot_frame_sub <- function(df, image, pars.list){
                  panel.grid.major = element_blank(),
                  panel.grid.minor = element_blank()) +
     coord_fixed()
+  
   # get legend
   legend <- get_legend(p + geom_point())
+  
   # subplots
   for (i in c(1:length(pars.list$tracks))) {
     pars_plot <- pars.list$crop_pars %>% filter(track == pars.list$tracks[i]) %>% select(-track) %>% as.list()

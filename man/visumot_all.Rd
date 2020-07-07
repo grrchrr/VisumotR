@@ -56,7 +56,7 @@ Creates time-resolved images series of tracking data with modifiable parameter m
 functions can be passed via the lists \code{visumot_frame.list} and \code{visumot_summary.list}.
 }
 \details{
-
+To be written...
 }
 \examples{
 # import tracking data

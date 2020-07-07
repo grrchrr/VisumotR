@@ -1,12 +1,8 @@
-# plotting summary statistics
-
 #' @title visumot_summary
 #' @description To be written...
 #' @details  To be written...
 #' @examples
 #' visumot_summary()
-
-
 
 #' @export
 visumot_summary <- function(df, ...) {
@@ -40,7 +36,6 @@ visumot_summary <- function(df, ...) {
   #' @param points.shape \code{numeric}: set shape from ggplot2 shape palette
   #' @param unit \code{character}: setting name of unit; default: \code{'px'}
 
-
   # get user input
   pars.list.user <- list(...)
   if (length(pars.list.user) == 0) {
@@ -73,10 +68,10 @@ visumot_summary <- function(df, ...) {
     pars.list$par.map <- colnames(df)[5]
     warning(paste('par.map not specified, defaulting to:', pars.list$par.map), call. = FALSE)
   }
-
   # set x_max
   x_max <- df[,pars.list$group.vars] %>% max(na.rm = 1)
   x_min <- df[,pars.list$group.vars] %>% min(na.rm = 1)
+  
   # check numeric parameters and get max-values
   if (is.null(pars.list$par.numeric)) {
     pars.list$par.numeric <- colnames(df[,5:ncol(df)])[grepl('numeric', sapply(df[,5:ncol(df)], class))]
@@ -126,7 +121,6 @@ visumot_summary <- function(df, ...) {
   } else {
     plot <- plot + theme(plot.margin = unit(c(5,5,5,5),'mm'))
   }
-
   # add ribbon
   if (pars.list$ribbon) {
     plot <- plot + geom_ribbon(aes(ymin = mean - sd,
@@ -141,7 +135,6 @@ visumot_summary <- function(df, ...) {
   } else {
     plot <- plot + xlab(str_to_sentence(pars.list$group.vars))
   }
-
   # check df for NAs and remove them for certain timepoints (beginning of plotting area)
   if (df_plot %>% filter(frame == pars.list$frame) %>% na.omit() %>% nrow() > 0) {
     df_plot <- df_plot %>% na.omit()
