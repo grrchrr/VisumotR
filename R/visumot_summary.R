@@ -61,7 +61,7 @@ visumot_summary <- function(df, ...) {
     message(paste('frame not specified, defaulting to latest frame in dataset:', pars.list$frame), call. = FALSE)
   }
   # add frames to df
-  df <- df %>% mutate(frame=match(time, sort(unique(time))))
+  df <- df %>% 
   
   # set grouping variables
   if (is.null(pars.list$group.vars)) {
@@ -103,8 +103,10 @@ visumot_summary <- function(df, ...) {
   # create plot_df
   df_plot <- df  %>% mutate_(visu_col = as.name(pars.list$par.map)) %>%
     select(time, track, visu_col, c(pars.list$par.numeric)) %>%
-    gather('measure','value',-track, -time, -visu_col)
-
+    gather('measure','value',-track, -time, -visu_col) %>% mutate(frame=match(time, sort(unique(time))))
+  
+  frame_time <- df_plot  %>% distinct(frame, time) %>% filter(frame==pars.list$frame) %>% pull(time)
+  
   # plotting
   plot <- ggplot(df_stat, aes(x = time, y = mean)) +
     geom_path() +
@@ -114,7 +116,7 @@ visumot_summary <- function(df, ...) {
          color = str_to_sentence(pars.list$par.map)) +
     scale_x_continuous(limits = c(x_min,x_max), expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
-    geom_vline(xintercept = pars.list$frame - 1,
+    geom_vline(xintercept = frame_time,
                alpha = 0.5,
                col = 'red')
   # add legend
@@ -141,7 +143,7 @@ visumot_summary <- function(df, ...) {
   }
 
   # check df for NAs and remove them for certain timepoints (beginning of plotting area)
-  if (df_plot %>% filter(time == pars.list$frame - 1) %>% na.omit() %>% nrow() > 0) {
+  if (df_plot %>% filter(frame == pars.list$frame) %>% na.omit() %>% nrow() > 0) {
     df_plot <- df_plot %>% na.omit()
   }
   # filter for tracks
@@ -151,15 +153,15 @@ visumot_summary <- function(df, ...) {
   # add jitter
   if (any(grepl('jitter',pars.list$geom))) {
     p <- plot +
-      geom_jitter(data = df_plot %>% filter(time == pars.list$frame - 1),
+      geom_jitter(data = df_plot %>% filter(frame == pars.list$frame),
                   aes(x = time, y = value, col = visu_col),
                   alpha = pars.list$points.alpha, shape = pars.list$points.shape,
                   size = pars.list$points.size, width = 2, height = 0.1)
   } else {# add path and point
-    p <- plot + geom_path(data = df_plot %>% filter(time <= pars.list$frame - 1),
+    p <- plot + geom_path(data = df_plot %>% filter(frame <= pars.list$frame),
                           aes(x = time, y = value, col = visu_col, group = track))
     if (any(grepl('point',pars.list$geom))) {
-      p <- p + geom_point(data = df_plot %>% filter(time == pars.list$frame - 1),
+      p <- p + geom_point(data = df_plot %>% filter(frame == pars.list$frame),
                           aes(x = time, y = value, col = visu_col),
                           alpha = pars.list$points.alpha, shape = pars.list$points.shape,
                           size = pars.list$points.size)
