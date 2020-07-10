@@ -170,15 +170,15 @@ visumot_frame_tab <- tabItem(tabName = 'visumot_frame', fluidRow(
 )
 
 
-about <- tabItem(tabName = 'about',
-            fluidPage(
-                div(includeMarkdown('/Users/charmel/VisumotR/README.md'),style='width:900px;')
-            )
-         )
+# about <- tabItem(tabName = 'about',
+#             fluidPage(
+#                 div(includeMarkdown('/Users/charmel/VisumotR/README.md'),style='width:900px;')
+#             )
+#          )
 
 # 2.1.4: Body ####
 body <- dashboardBody(
-    tabItems(read_data,read_images,browse_data,browse_images, visumot_frame_tab,about)
+    tabItems(read_data,read_images,browse_data,browse_images, visumot_frame_tab)
     )
 
 # 2.2: Set up UI ####
