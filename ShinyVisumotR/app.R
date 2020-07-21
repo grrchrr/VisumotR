@@ -182,8 +182,9 @@ about <- tabItem(tabName = 'about',
 
 # 2.1.4: Body ####
 body <- dashboardBody(
-    tabItems(read_data, read_images, visumot_frame_tab, about)
-    )
+    tabItems(read_data, read_images, visumot_frame_tab, about))
+
+
 
 # 2.2: Set up UI ####
 ui <- dashboardPage(header, sidebar, body)
