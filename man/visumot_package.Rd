@@ -14,7 +14,7 @@ It allows to map (time-resolved) motility parameters or any other calcuclated su
 }
 
 \usage{
-visumot_frame(df, image, frame, ...)
+visumot_frame(df, ...)
 visumot_summary(df, ...)
 visumot_all(df, images, ...)
 }

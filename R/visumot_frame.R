@@ -21,7 +21,18 @@
 
 #' @export
 visumot_frame <- function(df, ...) {
-
+  #' @import tidyverse
+  #' @import grid
+  #' @import gridExtra
+  #' @import ggecho
+  #' @import rlang
+  #' @import magick
+  #' @import facetscales
+  #' @import cowplot
+  #' @import parallel
+  #' @import foreach
+  #' @import doSNOW
+  
   # set default parameters
   pars.list.default <- list(image = NULL, stack=FALSE, image.depth = 8, image.normalize = FALSE , frame = NULL, tracks = NULL, all.list = FALSE,
                             par.map = NULL, par.shape = NULL, par.display = TRUE, par.max = NaN, par.min=NaN, par.unit = NULL,
@@ -71,7 +82,7 @@ visumot_frame <- function(df, ...) {
   #' @param scale.x \code{numeric}: distance from left border of the image towards scalebar
   #' @param scale.y \code{numeric}: distance from bottom border of the image towards scalebar
   #' @param scale.color \code{character}: specify color from R-color palette or hexcode
-  #' @return returns a ggplot2 plot-object which can be further modified in the known manner
+  #' @return returns a ggplot2 plot-object which can be further modified 
 
   # get user input
   pars.list.user <- list(...)
@@ -99,17 +110,17 @@ visumot_frame <- function(df, ...) {
   if (is.null(pars.list$par.map)) {
     pars.list$par.map <- colnames(df)[5]
     if (is.character(pars.list$par.map)) {
-      warning('par.map not specified...\n',
-              paste('\tdefaulted to:', pars.list$par.map,'\n'),
-              '\tassuming: df(id, time, X, Y, mapping_parameters, ...)', call. = FALSE)
+      message('par.map not specified\n',
+              paste('defaulted to:', pars.list$par.map,'\n'),
+              'assuming: df(track, time, X, Y, mapping_parameters, ...)')
       if (is.numeric(df[pars.list$par.map] %>% pull())) {
         pars.list$par.max <- df %>% select(c(pars.list$par.map)) %>% pull() %>% max(na.rm = TRUE)
         pars.list$par.min <- df %>% select(c(pars.list$par.map)) %>% pull() %>% min(na.rm = TRUE)
       }
     } else {
       pars.list$par.map <- NULL
-      warning('par.map not specified...\n','no mapping parameter found\n',
-              'color mapping disabled...', call. = FALSE)
+      message('par.map not specified:\n','no mapping parameter found\n',
+              'color mapping disabled', call. = FALSE)
     }
   } else {
     # find min value for given parameter
@@ -169,11 +180,11 @@ visumot_frame <- function(df, ...) {
   image <- process_img(df,image, pars.list)
   
   # plot according to parameters
-  suppressMessages(suppressWarnings(
+  #suppressMessages(suppressWarnings(
     if (pars.list$sub.img) {
       return(plot_frame_sub(df, image, pars.list))
     } else {
       return(plot_frame(df, image, pars.list))
     }
-  ))
+  #))
 }

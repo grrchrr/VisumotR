@@ -20,7 +20,8 @@ Depends:
     parallel,
     foreach,
     doSNOW
-Suggests:
-    ggecho,
-    facetscales
+Imports:
+    Rmisc,
+    facetscales,
+    ggecho
 RoxygenNote: 7.1.0

@@ -31,6 +31,19 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
                         save = TRUE, file_name = NULL,
                         width = 2000, height = 1200, rel_width = 1,
                         browse = FALSE, return = FALSE) {
+  #' @import tidyverse
+  #' @import grid
+  #' @import gridExtra
+  #' @import ggecho
+  #' @import rlang
+  #' @import magick
+  #' @import facetscales
+  #' @import cowplot
+  #' @import parallel
+  #' @import foreach
+  #' @import doSNOW
+  #' @importFrom Rmisc summarySE
+  
   #' @param df dataframe of the form: \code{df(track, time, X, Y, mapping_parameters, ...)}
   #' @param images \code{vector}: filenames of images ordered by frames/time
   #' @param frame_range \code{integer}: frames to be mapped; default=\code{NULL} maps full time/frame range found in \code{df}

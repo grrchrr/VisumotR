@@ -6,7 +6,17 @@
 
 #' @export
 visumot_summary <- function(df, ...) {
-
+  #' @import tidyverse
+  #' @import grid
+  #' @import gridExtra
+  #' @import ggecho
+  #' @import rlang
+  #' @import magick
+  #' @import facetscales
+  #' @import cowplot
+  #' @import parallel
+  #' @import foreach
+  #' @import doSNOW
   # set default parameters
   pars.list.default <- list(par.map = NULL, par.display = TRUE, par.max = NaN, par.type = NULL,
                             par.numeric = NULL, par.discrete = NULL, group.vars = NULL, tracks = NULL,

@@ -1,5 +1,21 @@
 # Utility functions ####
+#' @import tidyverse
+#' @import grid
+#' @import gridExtra
+#' @import ggecho
+#' @import rlang
+#' @import magick
+#' @import facetscales
+#' @import cowplot
+#' @import parallel
+#' @import foreach
+#' @import doSNOW
+
+
+
+
 summary_mot <- function(df, measure_vars, group_vars){
+  #' @import Rmisc 
   out_df <- tibble()
   for (i in measure_vars) {
     df_i <- Rmisc::summarySE(df, measurevar = i, groupvars = group_vars, na.rm = TRUE ) %>% mutate(measure = i)

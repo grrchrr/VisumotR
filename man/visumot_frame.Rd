@@ -13,9 +13,9 @@ visumot_frame(df, ...)
 
 \item{stack}{\code{logical}: default: \code{FALSE}, single image file provided if time-resolved imagestack is used, set: \code{TRUE}}
 
-\item{image_depth}{\code{numeric}: set image bit-depth; just important if Z-projections are calculated}
+\item{image.depth}{\code{numeric}: set image bit-depth; just important if Z-projections are calculated}
 
-\item{image_normalize}{\code{logical}: normalize image}
+\item{image.normalize}{\code{logical}: normalize image}
 
 \item{frame}{\code{integer}: frame to be mapped}
 
@@ -81,7 +81,7 @@ If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y,
 \item{scale.color}{\code{character}: specify color from R-color palette or hexcode}
 }
 \value{
-returns a ggplot2 plot-object which can be further modified in the known manner
+returns a ggplot2 plot-object which can be further modified
 }
 \description{
 With visumot_frame, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint.
