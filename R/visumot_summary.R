@@ -18,10 +18,9 @@ visumot_summary <- function(df, ...) {
   #' @import foreach
   #' @import doSNOW
   # set default parameters
-  pars.list.default <- list(par.map = NULL, par.display = TRUE, par.max = NaN, par.type = NULL,
-                            par.numeric = NULL, par.discrete = NULL, group.vars = NULL, tracks = NULL,
+  pars.list.default <- list(par.map = NULL, par.numeric = NULL, group.vars = NULL, tracks = NULL,
                             ribbon = TRUE, ribbon.stat = 'sd', ribbon.alpha = 0.75, frame = NULL, time.unit = NULL,
-                            geom = c('line','point'), legend = TRUE,
+                            geom = c('line','point'), legend = TRUE, all.list = FALSE,
                             line.size = 1, line.alpha = 1,
                             points.size = 1, points.alpha = 1, points.shape = 16)
 
@@ -31,9 +30,6 @@ visumot_summary <- function(df, ...) {
   #' @param tracks \code{vector}: defining tracks to be displayed
   #' @param par.map \code{character}: specifying parameter in \code{df} to be visualized by color
   #' @param par.shape \code{character}: specifying parameter in \code{df} to be mapped on shape
-  #' @param par.display display option for mapping; default: \code{TRUE}, mapping is disable with: \code{FALSE}
-  #' @param par.max \code{numeric}: defining range of color mapping
-  #' @param par.unit \code{character}: unit of the numeric mapped parameter
   #' @param ribbon \code{logical}: display ribbon
   #' @param ribbon.stat \code{character}: choose ribbon-statistic: \code{'sd'}: standard deviation,
   #'  \code{'se'}: standard error,
@@ -48,12 +44,15 @@ visumot_summary <- function(df, ...) {
 
   # get user input
   pars.list.user <- list(...)
+  
   if (length(pars.list.user) == 0) {
     pars.list <- pars.list.default
   } else {
-    if (pars.list.user$all.list) {
-      pars.list.user <- pars.list.user[-which(names(pars.list.user) == "all.list")]
-      pars.list.user <- pars.list.user[[1]]
+    if (!is.null(pars.list.user$all.list)) {
+      if(pars.list.user$all.list){
+        pars.list.user <- pars.list.user[-which(names(pars.list.user) == "all.list")]
+        pars.list.user <- pars.list.user[[1]]
+      }
     }
     # match user and default values
     pars.list <- transfer_pars(pars.list.user,pars.list.default)
@@ -63,10 +62,8 @@ visumot_summary <- function(df, ...) {
   if (is.null(pars.list$frame)) {
     timepoints <- df %>% select(time) %>% pull() 
     pars.list$frame <- max(match(timepoints, sort(unique(timepoints))))
-    message(paste('frame not specified, defaulting to latest frame in dataset:', pars.list$frame), call. = FALSE)
+    message(paste('frame not specified, defaulting to latest frame in dataset:', pars.list$frame))
   }
-  # add frames to df
-  df <- df %>% 
   
   # set grouping variables
   if (is.null(pars.list$group.vars)) {
@@ -116,7 +113,7 @@ visumot_summary <- function(df, ...) {
   plot <- ggplot(df_stat, aes(x = time, y = mean)) +
     geom_path() +
     facet_grid_sc(rows = vars(measure), scales = list(y = scales_y)) +
-    scale_colour_viridis_c(limits = c(0,y_max[[pars.list$par.map]]), na.value = 'red') +
+    scale_colour_viridis_c(limits = c(y_min[[pars.list$par.map]], y_max[[pars.list$par.map]]), na.value = 'red') +
     labs(y = 'Mean',
          color = str_to_sentence(pars.list$par.map)) +
     scale_x_continuous(limits = c(x_min,x_max), expand = c(0, 0)) +

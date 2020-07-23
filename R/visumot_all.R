@@ -29,7 +29,7 @@ visumot_all <- function(df, images, stack=FALSE, frame_range = NULL,
                         visumot_frame.list = NULL,
                         visumot_summary.list = NULL,
                         save = TRUE, file_name = NULL,
-                        width = 2000, height = 1200, rel_width = 1,
+                        width = 2000, height = 1200, rel_width = 0.66,
                         browse = FALSE, return = FALSE) {
   #' @import tidyverse
   #' @import grid

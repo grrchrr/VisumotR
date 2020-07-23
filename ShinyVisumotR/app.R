@@ -12,9 +12,8 @@ library(ggecho)
 library(facetscales)
 library(shinydashboard)
 library(shinyFiles)
-library(shinythemes)
 library(shinyWidgets)
-library(dashboardthemes)
+library(colourpicker)
 #______________________________________ ####
 
 # 2: UI elements ####
@@ -45,14 +44,14 @@ sidebar <- dashboardSidebar(
 # 2.1.3.1: Read Data ####
 read_data <- tabItem(tabName = 'read_data', fluidRow(
     column(width=12,
-           tabBox(width=NULL, title = "Tracking Data",
+           tabBox(width=NULL, title = 'Tracking Data',
                   tabPanel('Read In',
                            'Select .csv files which contain your tracking data. Click on Read in Dataset to import the dataset and continue with the other tabs to prepare the dataset for using it with VisumotR.',
                            hr(),
-                           shinyFilesButton("file", " Browse Files", "Please select file(s)", multiple = TRUE, viewtype = "detail", icon = icon('folder')),
+                           shinyFilesButton('file', ' Browse Files', 'Please select file(s)', multiple = TRUE, viewtype = 'detail', icon = icon('folder')),
                            br(),
                            br(),
-                           div(verbatimTextOutput("filepaths"), style= "width:50%"),
+                           div(verbatimTextOutput('filepaths'), style= 'width:50%'),
                            hr(),
                            uiOutput('select_data'),
                            actionButton('load_df', label = 'Read in', icon = icon('download')),
@@ -61,7 +60,7 @@ read_data <- tabItem(tabName = 'read_data', fluidRow(
                            ),
                   tabPanel('Prepare Dataset',
                            'Please set the scaling factors to refer to pixel and frames as well as
-                           indicate which columns in your dataset correspond to track, time and X-, Y- and Z- positions.',
+                           indicate which columns in your dataset correspond to track, time and X-, Y- and Z- positions. Then click Update dataframe to continue with the Run VisumotR tab.',
                            hr(),
                            fluidRow(
                                column(6,
@@ -82,24 +81,24 @@ read_data <- tabItem(tabName = 'read_data', fluidRow(
 # 2.1.3.2: Read Images ####
 read_images  <- tabItem(tabName = 'read_images', fluidRow(
     column(width=3,
-           box(width=NULL, title = "Image Specifications",
+           box(width=NULL, title = 'Image Specifications',
                radioGroupButtons('color_space', 'Color Space', choices = list('Grayscale'='gray', 'RGB'='rgb')),
                radioGroupButtons('bit_depth','Bit Depth', choices = list('8-bit'=8,'16-bit'=16,'32-bit'=32)),
                radioGroupButtons('dims_img', 'Dimensions', choices = list('2D'=2,'3D'=3)),
                radioGroupButtons('stack','Timeseries', choices = list('Multiple Files'=FALSE, 'Stack'=TRUE)),
                switchInput(label = 'Normalize',
-                           inputId = "normalize",
+                           inputId = 'normalize',
                            value = FALSE))
     ), column(width=9, 
-              tabBox(width=NULL, height = '100%' ,title="Image Browser",
-                     tabPanel("Import", 
-                              shinyFilesButton("images", "Browse Images", "Please select file(s)", multiple = TRUE, viewtype = "detail", icon = icon('folder')),
+              tabBox(width=NULL, height = '100%' ,title='Image Browser',
+                     tabPanel('Import', 
+                              shinyFilesButton('images', 'Browse Images', 'Please select file(s)', multiple = TRUE, viewtype = 'detail', icon = icon('folder')),
                               hr(),
-                              div(verbatimTextOutput("filepaths_img"), style= "width:100%")),
-                     tabPanel("Viewer",
+                              div(verbatimTextOutput('filepaths_img'), style= 'width:100%')),
+                     tabPanel('Viewer',
                               uiOutput('select_image_ui'),
                               hr(),
-                              imageOutput("img"),
+                              imageOutput('img'),
                               hr())
                   ))
 )
@@ -108,56 +107,58 @@ read_images  <- tabItem(tabName = 'read_images', fluidRow(
 # 2.1.3.3: Frame ####
 visumot_frame_tab <- tabItem(tabName = 'visumot_frame', fluidRow(
     column(width=3,
-           box(width=NULL, title = "Options",
+           box(width=NULL, title = 'Options',
                switchInput(label = 'Mapping',
-                           inputId = "mapping",
+                           inputId = 'mapping',
                            value = TRUE
                ),
                uiOutput('par.map'),
                uiOutput('par.map.options'),
                hr(),
                switchInput(label = 'Subwindow',
-                   inputId = "sub_window",
+                   inputId = 'sub_window',
                    value = FALSE
                ),
                uiOutput('sub_image_opt'),
                hr(),
                switchInput(label = 'Tracks',
-                           inputId = "tracks",
+                           inputId = 'tracks',
                            value = TRUE
                ),
                uiOutput('tracks_opt'),
                hr(),
                switchInput(label = 'Points',
-                           inputId = "points",
+                           inputId = 'points',
                            value = TRUE
                ),
                uiOutput('points_opt'),
                hr(),
                switchInput(label = 'Scalebar',
-                           inputId = "scalebar",
+                           inputId = 'scalebar',
                            value = FALSE
                ),
+               uiOutput('scale_opt'),
+               hr(),
                switchInput(label = 'Axis',
-                           inputId = "axis",
+                           inputId = 'axis',
                            value = FALSE
                ), 
                switchInput(label = '3D',
-                           inputId = "dims_3d",
+                           inputId = 'dims_3d',
                            value = FALSE
                )
                
                )
     ), column(width=9, 
-              box(width=NULL, title="Viewer",
+              box(width=NULL, title='Viewer',
                   uiOutput('frame_select'),
                   hr(),
                   fluidRow(column(width = 1, actionGroupButtons(
-                      inputIds = c("frame_b", "frame_f"),
-                      labels = list(tags$span(icon("angle-left"),""), tags$span(icon("angle-right"),"")),
-                      status = "primary",
+                      inputIds = c('frame_b', 'frame_f'),
+                      labels = list(tags$span(icon('angle-left'),''), tags$span(icon('angle-right'),'')),
+                      status = 'primary',
                       direction = 'vertical')),
-                      column(width=10,plotOutput('visumot_frame', height="800px")),
+                      column(width=10,plotOutput('visumot_frame', height='800px')),
                       column(width=1,actionButton('update_frame','',icon = icon('sync'), color = 'primary'),
                              actionButton('save_frame','', icon = icon('download'), color='primary')),
                   hr()
@@ -167,22 +168,54 @@ visumot_frame_tab <- tabItem(tabName = 'visumot_frame', fluidRow(
 )
 
 # 2.1.3.4: Summary ####
-
+visumot_sum_tab <- tabItem('visumot_summary', fluidRow(
+    column(width = 3, 
+           box(width = NULL, title = 'Options', 
+               uiOutput('summary_ui'))),
+    column(width=9, 
+           box(width=NULL, title = 'Summary',
+           plotOutput('visumot_summary', height = 800)))
+           
+    )
+)
 # 2.1.3.5: Animation ####
-
+visumot_all_tab <- tabItem('visumot_all', fluidRow(
+    column(width = 2, 
+           box(width = NULL, title = 'Options', 
+               sliderInput('frame.range','Frame range', min=1, max = 120, value = c(1,120)),
+               numericInput('width','Width',min=1, max=NA, value = 2000, step = 1),
+               numericInput('height','Height',min=1, max=NA, value = 1200, step = 1),
+               numericInput('rel_width', 'Ratio', value = 0.65, step = 0.05, min = 0.05, max = 0.95))),
+    column(width=10, 
+           box(width=NULL, title = 'Image Series Viewer',
+               'When clicking Start rendering the image series with the options from the Frame and Summary panels will be rendered. 
+               You can preview the output of single frames in order to be sure everything is of your liking.',
+               hr(),
+               actionButton('preview_frame', 'Update Preview', icon = icon('refresh')),
+               actionGroupButtons(inputIds = c('next_preview', 'prev_preview'),
+                                  labels = list(tags$span(icon('angle-left'),''), tags$span(icon('angle-right'),'')),
+                                  status = 'primary'),
+               hr(),
+               br(),
+               br(),
+               hr(),
+               actionButton('run_all','Start rendering', icon = icon('refresh'))))
+    
+)
+)
 # 2.1.3.6: How to ####
 
 # 2.1.3.7: About ####
 about <- tabItem(tabName = 'about',
             fluidPage(
-                tags$video(id="video2", type = "video/mpeg4", src = 'SampleVideo_1280x720_2mb.mp4', controls = 'controls'),
+                tags$video(id='video2', type = 'video/mpeg4', src = 'SampleVideo_1280x720_2mb.mp4', controls = 'controls'),
                 tags$img(src='test_img.png')
             )
          )
 
 # 2.1.4: Body ####
 body <- dashboardBody(
-    tabItems(read_data, read_images, visumot_frame_tab, about))
+    tabItems(read_data, read_images, visumot_frame_tab, visumot_sum_tab, visumot_all_tab, about))
 
 
 
@@ -197,16 +230,16 @@ server <- function(input, output, session) {
     # 3.1: Read In Data ####
     # 3.1.1: Filesystem Data ####
     
-    volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
+    volumes <- c(Home = fs::path_home(), 'R Installation' = R.home(), getVolumes()())
     
     ## select tracking data
-    shinyFileChoose(input, "file", roots = volumes, session = session)
+    shinyFileChoose(input, 'file', roots = volumes, session = session)
     
     
     ## show rendered overview over selected files and their paths
     output$filepaths <- renderPrint({
         if (is.integer(input$file)) {
-            cat("No files have been selected...")
+            cat('No files have been selected...')
         } else {
             parseFilePaths(volumes, input$file)
         }
@@ -216,7 +249,7 @@ server <- function(input, output, session) {
     output$select_data <- renderUI({
         list(
             selectInput(
-                "tracking_data", "Select dataset:",
+                'tracking_data', 'Select dataset:',
                 choices = parseFilePaths(volumes, input$file) %>% distinct(name) %>% pull()
             )
         )}
@@ -269,14 +302,12 @@ server <- function(input, output, session) {
             if(input$tracking_data==''){
                 list()
             } else {
-                list(dataTableOutput("df_raw"))
+                list(dataTableOutput('df_raw'))
             }
             
         })
     })
     
-    
-    ## 3.1.1.1: Dataframe Browser ####
     output$df_tracking <- renderDataTable({df()}, options = list(scrollX = TRUE))
     
     ## create ui
@@ -285,18 +316,18 @@ server <- function(input, output, session) {
         if(input$tracking_data==''){
             list()
         } else {
-            list(dataTableOutput("df_tracking"))
+            list(dataTableOutput('df_tracking'))
         }
         
     })
     })
     
     # 3.1.2: Filesystem Images ####
-    shinyFileChoose(input, "images", roots = volumes, session = session)
+    shinyFileChoose(input, 'images', roots = volumes, session = session)
     
     output$filepaths_img <- renderPrint({
         if (is.integer(input$images)) {
-            cat("No images have been selected...")
+            cat('No images have been selected...')
         } else {
             parseFilePaths(volumes, input$images)
         }
@@ -304,36 +335,58 @@ server <- function(input, output, session) {
     
     ## create select data ui
     output$select_image_ui <- renderUI(
-        list(fluidRow(
-            column(5,selectInput(
-                "select_image", "",
-                choices = parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull())),
-            column(1,actionGroupButtons(inputIds=c('prev_img','next_img'),
-                               labels = list(tags$span(icon("angle-up"),""), tags$span(icon("angle-down"),"")),
-                               status = "primary",
-                               direction = 'vertical'))
-        )
-            
-        )
+        if(input$stack){
+            list(fluidRow(
+                column(4,selectInput(
+                    'select_image', 'Image',
+                    choices = parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull())),
+                column(1,actionGroupButtons(inputIds=c('prev_img','next_img'),
+                                            labels = list(tags$span(icon('angle-up'),''), tags$span(icon('angle-down'),'')),
+                                            status = 'primary',
+                                            direction = 'vertical')),
+                column(2, numericInput('slice','Slice',min=1,max=NA,step=1, value=1)))
+            ) 
+        } else {
+            list(fluidRow(
+                column(4,selectInput(
+                    'select_image', 'Image',
+                    choices = parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull())),
+                column(1,actionGroupButtons(inputIds=c('prev_img','next_img'),
+                                            labels = list(tags$span(icon('angle-up'),''), tags$span(icon('angle-down'),'')),
+                                            status = 'primary',
+                                            direction = 'vertical'))))
+        }
+        
+        
     )
     
     # update frames with action buttons
     observeEvent(input$prev_img, {
+        if(input$stack){
+            slice_update <- input$slice - 1
+            if(slice_update<1){
+                slice_update <- 1
+            }
+            updateNumericInput(session, inputId = 'slice', value = slice_update )
+        } else {
+            image_list <- parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull()
+            
+            current_image <- which(image_list==input$select_image)
+            
+            updateSelectInput(session,inputId='select_image', selected = image_list[current_image-1])
+        }
         
-        image_list <- parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull()
-        
-        current_image <- which(image_list==input$select_image)
-        
-        updateSelectInput(session,inputId='select_image', selected = image_list[current_image-1])
     })
     
     observeEvent(input$next_img, {
-        
-        image_list <- parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull()
-        
-        current_image <- which(image_list==input$select_image)
-        
-        updateSelectInput(session,inputId='select_image', selected = image_list[current_image+1])
+        if(input$stack){
+            slice_update <- input$slice + 1
+            updateNumericInput(session, inputId = 'slice', value = slice_update )
+        } else {
+            image_list <- parseFilePaths(volumes, input$images) %>% distinct(name) %>% pull()
+            current_image <- which(image_list==input$select_image) 
+            updateSelectInput(session,inputId='select_image', selected = image_list[current_image+1])
+        }
     })
     
     
@@ -341,18 +394,21 @@ server <- function(input, output, session) {
     # A plot of fixed size
     output$img <- renderImage({
         if(input$select_image==''){
-            tmpfile <- image_blank(400,400,color="white")
+            tmpfile <- image_blank(400,400,color='white')
         } else {
             tmpfile <- image_read(parseFilePaths(volumes, input$images) %>%
                                       filter(name == input$select_image) %>%
                                       pull(datapath))
+        }
+        if(input$stack){
+            tmpfile <- tmpfile[input$slice]
         }
         if(input$normalize){
             tmpfile <- tmpfile %>% image_normalize()
         }
         tmpfile <- tmpfile %>% image_write(tempfile(fileext='jpg'), format = 'jpg')
         # Return a list
-        list(src = tmpfile, contentType = "image/jpg", height='100%')
+        list(src = tmpfile, contentType = 'image/jpg', height='100%')
     })
     
     
@@ -366,12 +422,12 @@ server <- function(input, output, session) {
         if(input$mapping){
             list(
                 checkboxGroupButtons(
-                    inputId = "map.select",
-                    choiceValues = c("continous", 
-                                "discrete"),
-                    choiceNames = c('Continous','Discrete'), 
+                    inputId = 'map.select',
+                    choiceValues = c('color', 
+                                'shape'),
+                    choiceNames = c('Color','Shape'), 
                     status = 'primary', 
-                    selected = 'continous'
+                    selected = 'color'
                 )
             )
         } else {
@@ -380,63 +436,39 @@ server <- function(input, output, session) {
     })
     
     output$frame_select <- renderUI({
-        sliderInput("frame", 'Frame:', min=1, max=df()%>%distinct(time)%>%nrow(), value=1)
+        sliderInput('frame', 'Frame:', min=1, max=df()%>%distinct(time)%>%nrow(), value=1)
     })
     
     output$select_range <- renderUI({
-        if(any(input$map.select=='continous')) {
-            min_value <- df() %>% select_(input$par.map.cont) %>% pull() %>% min()
-            max_value <- df() %>% select_(input$par.map.cont) %>% pull() %>% max()
-            sliderInput('par.map.cont.range','',value = c(min_value,max_value), min = min_value, max = max_value)
+        if(any(input$map.select=='color' & !is.null(input$par.map))) {
+            if(df() %>% pull(input$par.map) %>% is.numeric()){
+                min_value <- df() %>% select_(input$par.map) %>% pull() %>% min()
+                max_value <- df() %>% select_(input$par.map) %>% pull() %>% max()
+                sliderInput('par.map.cont.range','Define range',value = c(min_value,max_value), min = min_value, max = max_value)
+            }
+            
         } else {
             list()
         }
         
     })
     
-    
-    
     # conditional options for mapping 
     output$par.map.options <- renderUI({
-        ui_cont <- list()
-        ui_disc <- list()
+        ui_color <- list()
+        ui_shape <- list()
         if(input$mapping){
-            if(any(input$map.select=='continous')) {
-                ui_cont <- list(fluidRow(column(1,
-                                                radioGroupButtons('par.map.cont.val',
-                                                                  choiceNames = c('Color','Size'),
-                                                                  choiceValues = c('color','size'),
-                                                                  status = 'primary',
-                                                                  direction = 'vertical')),
-                                         column(2),
-                                         column(7,
-                                                selectInput('par.map.cont',
-                                                            'Parameter:',
-                                                            choices = df() %>% select_if(is.numeric) %>% colnames())
-                                                )
-                                         ),
-                                uiOutput('select_range')
-                                )
+            if(any(input$map.select=='color')) {
+                ui_color <- list(selectInput('par.map',
+                                             'Color parameter',
+                                             choices = df() %>% colnames()),
+                                uiOutput('select_range'))
             }
-            if(any(input$map.select=='discrete')){
-                ui_disc <- list(fluidRow(column(1,
-                                                radioGroupButtons('par.map.disc.val',
-                                                                  choiceNames = c('Color','Shape'),
-                                                                  choiceValues = c('color','shape'),
-                                                                  selected = 'shape',
-                                                                  direction = 'vertical', 
-                                                                  status = 'primary')),
-                                         column(2),
-                                         column(7,
-                                                selectInput('par.map.disc',
-                                                            'Parameter:',
-                                                            choices = df() %>% select_if(negate(is.numeric)) %>% colnames())
-                                                )
-                                         )
-                )
+            if(any(input$map.select=='shape')){
+                ui_shape <- list(selectInput('par.shape','Shape parameter', choices = df() %>% colnames()))
             }
         }
-        append(ui_cont, ui_disc)
+        append(ui_color, ui_shape)
     })
     
     # conditional options for subwindow
@@ -479,6 +511,23 @@ server <- function(input, output, session) {
         }
     })
     
+    # conditional options for scalebar
+    
+    output$scale_opt <- renderUI({
+        if (input$scalebar) {
+            list(
+                numericInput('scale.width','Width',min = 1, max= NA, value = 40),
+                numericInput('scale.height', 'Height', min=1, max = NA, value=10),
+                numericInput('scale.x', 'X offset', min=1, max=NA, value = 10),
+                numericInput('scale.y', 'Y offset', min=1, max=NA, value = 10),
+                colourInput('scale.color','Color',value = 'grey70')
+            )
+        } else {
+            list()
+        }
+    })
+    
+    
     # update frames with action buttons
     observeEvent(input$frame_b, {
         current_frame <- input$frame
@@ -493,7 +542,14 @@ server <- function(input, output, session) {
     
     # 3.3.1.2: Run vismot_frame() ####
     frame_gg <- eventReactive(list(input$update_frame,input$frame_b,input$frame_f),{
-        visumot_frame(df(),
+        df_visu_frame <- df()
+        if(any(input$map.select=='shape')){
+            if(df()%>%pull(input$par.shape)%>%is.numeric()){
+                df_visu_frame <- df()%>%mutate_at(input$par.shape,as.factor) 
+            }
+        }
+        
+        visumot_frame(df_visu_frame,
                       frame = input$frame,
                       image = parseFilePaths(volumes, input$images) %>% slice(input$frame) %>% pull(datapath),
                       points.size = input$points.size,
@@ -508,8 +564,17 @@ server <- function(input, output, session) {
                       sub.col = input$sub_n_col, 
                       par.min = input$par.map.cont.range[1],
                       par.max = input$par.map.cont.range[2],
-                      par.map = input$par.map.cont,
-                      image.normalize = input$normalize)
+                      par.map = input$par.map,
+                      par.shape = input$par.shape,
+                      image.normalize = input$normalize,
+                      scale.bar = input$scalebar, 
+                      scale.width = input$scale.width,
+                      scale.height = input$scale.height,
+                      scale.x = input$scale.x,
+                      scale.y = input$scale.y,
+                      scale.color = input$scale.color,
+                      axis.display = input$axis, 
+                      stack = input$stack)
     }
     )
     
@@ -517,6 +582,24 @@ server <- function(input, output, session) {
     
     
     # 3.3.2: Summary ####
+    output$summary_ui <- renderUI({
+        columns_sum <- df()%>%colnames()
+        list(
+            selectizeInput('par.numeric','Summary statistics',choices = columns_sum, multiple=TRUE),
+            selectInput('group.vars', 'Time ',choices = columns_sum, selected = columns_sum[2]),
+            selectInput('par.map.sum', 'Color', choices = columns_sum),
+            actionButton('refresh_sum','',icon = icon('refresh'))
+        )
+    })
+    
+    
+    summary_gg <- eventReactive(input$refresh_sum,{
+        visumot_summary(df(), par.numeric=input$par.numeric, group.vars=input$group.vars, par.map=input$par.map.sum)
+    })
+    
+    output$visumot_summary <- renderPlot(summary_gg())
+    
+    
     # 3.3.3: Animation ####
     
     

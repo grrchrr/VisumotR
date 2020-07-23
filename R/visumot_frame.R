@@ -92,8 +92,10 @@ visumot_frame <- function(df, ...) {
     pars.list <- pars.list.default
   } else {
     if (!is.null(pars.list.user$all.list)) {
-      pars.list.user <- pars.list.user[-which(names(pars.list.user) == "all.list")]
-      pars.list.user <- pars.list.user[[1]]
+      if(pars.list.user$all.list){
+        pars.list.user <- pars.list.user[-which(names(pars.list.user) == "all.list")]
+        pars.list.user <- pars.list.user[[1]]
+      }
     }
     # match user and default values
     pars.list <- transfer_pars(pars.list.user,pars.list.default)

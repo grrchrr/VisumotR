@@ -314,6 +314,11 @@ plot_frame <- function(df, image, pars.list){
                        fill = pars.list$scale.color,
                        col = pars.list$scale.color)
   }
+  if(pars.list$axis.display == FALSE){
+    p <- p + theme(axis.title = element_blank(),
+                   axis.text = element_blank(),
+                   axis.ticks = element_blank())
+  }
   return(p)
 }
 
