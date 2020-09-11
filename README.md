@@ -6,7 +6,7 @@
  
 Live-cell microscopy has become an essential tool for analyzing dynamic processes in various biological applications. To critically assess the influence of individual cells on the calculated summary statistics, and to detect heterogeneous cell populations or possible confounding factors, such as misclassified or -tracked objects, a direct mapping of gained statistical information onto the actual image data is necessary. VisumotR allows to visualize time-resolved motility parameters or any other summary statistic onto images in R. Originally, this package was intended to be used with live-cell microscopy images and cell-tracking data. But in general VisumotR can be used with any kind of data supplying a dataframe with trackIds, time and spatial coordinates (2D/3D), as well as numeric or discrete mapping parameters and corresponding images.
 
-![Concepts of VisumotR](images/visumotr_concept.png \| width=80)
+![Concepts of VisumotR](images/visumotr_concept.png)
 
 The package acts as a wrapper for annotating provided images with several, modifiable ggplot2-layers. With `visumot_frame()`, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint. `visumot_summary()` allows to create a corresponding plot of all given statistics for the whole range of the provided data. A time-resolved image-series can be created with `visumot_all()` which allows to combine mapped frames and summary plots created by `visumot_frame()` and `visumot_summary()`. The ouput of all functions are ggplot2-objects which can further be manipulated in a common manner.
 
