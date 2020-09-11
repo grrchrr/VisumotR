@@ -32,6 +32,7 @@ VisumotR supports .tiff-stacks of 3D image data as input. Since ggplot2 just wor
 
 ### GUI: Shiny App
 In addition to the functionality as an R- package, VisumotR can be completely used within a Shiny-app by calling visumot_shiny(). The Shiny-app acts as an graphical-user interface and allows to import and prepare tracking and image data as well as process these with all VisumotR functionalities. In contrast to using VisumotR in an IDE or terminal, the Shiny-app adds a much more interactive way of data- analysis and allows users that are not proficient with the R language to process their data with VisumotR.
+
 ![Shiny screenshot](images/app_visumot_frame.jpeg)
 
 ## Install VisumotR
