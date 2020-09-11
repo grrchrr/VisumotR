@@ -8,7 +8,7 @@ Live-cell microscopy has become an essential tool for analyzing dynamic processe
 
 ![Concepts of VisumotR](images/visumotr_concept.png)
 
-The package acts as a wrapper for annotating provided images with several, modifiable ggplot2-layers. With `visumot_frame()`, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint. `visumot_summary()` allows to create a corresponding plot of all given statistics for the whole range of the provided data. A time-resolved image-series can be created with `visumot_all()` which allows to combine mapped frames and summary plots created by `visumot_frame()` and `visumot_summary()`. The ouput of all functions are ggplot2-objects which can further be manipulated in a common manner.
+The package acts as a wrapper for annotating provided images with several, modifiable `ggplot2`-layers. With `visumot_frame()`, continous and discrete parameters can be mapped individually on color, shape and size for one timepoint. `visumot_summary()` allows to create a corresponding plot of all given statistics for the whole range of the provided data. A time-resolved image-series can be created with `visumot_all()` which allows to combine mapped frames and summary plots created by `visumot_frame()` and `visumot_summary()`. The ouput of all functions are `ggplot2`-objects which can further be manipulated in a common manner.
 
 ## Display modes
 
@@ -28,10 +28,10 @@ The output of `visumot_frame()` does not need to be the whole image. It can be c
 ![Sub-window output](images/visu_sub.png)
 
 ### 3D images and Z-projections
-VisumotR supports .tiff-stacks of 3D image data as input. Since ggplot2 just works in 2D, the user can choose from different Z-projections to view the data in 2D. All output modes work with 3D-image data. In addition, it is possible to follow several individual tracks on their respective Z-axis in parallel.
+VisumotR supports .tiff-stacks of 3D image data as input. Since `ggplot2` just works in 2D, the user can choose from different Z-projections to view the data in 2D. All output modes work with 3D-image data. In addition, it is possible to follow several individual tracks on their respective Z-axis in parallel.
 
 ### GUI: Shiny App
-In addition to the functionality as an R- package, VisumotR can be completely used within a Shiny-app by calling `visumot_shiny()`. The Shiny-app acts as an graphical-user interface and allows to import and prepare tracking and image data as well as process these with all VisumotR functionalities. In contrast to using VisumotR in an IDE or terminal, the Shiny-app adds a much more interactive way of data- analysis and allows users that are not proficient with the R language to process their data with VisumotR.
+In addition to the functionality as an R- package, VisumotR can be completely used within a Shiny-app by calling `visumot_shiny()`. The Shiny-app acts as an graphical-user interface and allows to import and prepare tracking and image data as well as process these with all VisumotR functionalities. In contrast to using VisumotR in an IDE or terminal, the Shiny-app adds a much more interactive way of data-analysis and allows users that are not proficient with the R language to process their data with VisumotR.
 
 ![Shiny screenshot](images/app_visumot_frame.jpeg)
 
