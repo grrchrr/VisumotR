@@ -27,7 +27,9 @@ visumot_frame(df, ...)
 
 \item{par.display}{display option for mapping; default: \code{TRUE}, mapping is disable with: \code{FALSE}}
 
-\item{par.max}{\code{numeric}: defining range of color mapping}
+\item{par.max}{\code{numeric}: defining upper range of color mapping}
+
+\item{par.min}{\code{numeric}: defining lower range of color mapping}
 
 \item{par.unit}{\code{character}: unit of the numeric mapped parameter}
 
@@ -44,6 +46,12 @@ visumot_frame(df, ...)
 \item{tracks.alpha}{\code{numeric}: transparency of tracks}
 
 \item{tracks.length}{\code{numeric}: length of tracks (in frames)}
+
+\item{tracks.label}{\code{logical}: when sub.img is used, display or hide track label}
+
+\item{tracks.label.x}{\code{numeric}: when sub.img is used, set x-position of label}
+
+\item{tracks.label.y}{\code{numeric}: when sub.img is used, set y-position of label}
 
 \item{points.size}{\code{numeric}: size of points}
 
@@ -64,7 +72,7 @@ visumot_frame(df, ...)
 \item{scaling}{\code{numeric}: scaling factor for unit; default: \code{1}}
 
 \item{dimensions}{\code{numeric}: specify whether the images are 2D or 3D. 
-If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}}
+If 3D is selected the data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}}
 
 \item{manual.z}{\code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used}
 
@@ -79,6 +87,9 @@ If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y,
 \item{scale.y}{\code{numeric}: distance from bottom border of the image towards scalebar}
 
 \item{scale.color}{\code{character}: specify color from R-color palette or hexcode}
+
+\item{interactive}{\code{logical}: return the plot as an interactive plotly object. Not supported when using 
+sub.img or crop modes.}
 }
 \value{
 returns a ggplot2 plot-object which can be further modified

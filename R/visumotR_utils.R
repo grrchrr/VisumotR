@@ -26,10 +26,10 @@ summary_mot <- function(df, measure_vars, group_vars){
 }
 
 crop_string <- function(pars){
-  x_min <- pars[['x_min']]
-  x_max <- pars[['x_max']]
-  y_min <- pars[['y_min']]
-  y_max <- pars[['y_max']]
+  x_min <- pars[['x_min_img']]
+  x_max <- pars[['x_max_img']]
+  y_min <- pars[['y_min_img']]
+  y_max <- pars[['y_max_img']]
   window_x <- x_max - x_min
   window_y <- y_max - y_min
   center_x <- x_min + window_x/2
@@ -49,6 +49,7 @@ crop_string <- function(pars){
     paste(offset_x),
     paste(offset_y),
     sep = "")
+ 
   return(crop_string)
 }
 
@@ -90,33 +91,50 @@ get_crop_pars <- function(df, pars.list){
         summarise(x_min = min(X),
                   x_max = max(X),
                   y_min = min(Y),
-                  y_max = max(Y)) %>%
+                  y_max = max(Y),
+                  x_min_img = min(X_img)-1,
+                  x_max_img = max(X_img)-1,
+                  y_min_img = min(Y_img),
+                  y_max_img = max(Y_img)) %>%
         group_by(track) %>%
-        mutate(string = crop_string_df(x_min, x_max, y_min, y_max)) %>% ungroup()
+        mutate(string = crop_string_df(x_min_img, x_max_img, y_min_img, y_max_img)) %>% ungroup()
     } else {# each window has the same size
       window_half <- pars.list$sub.window/2
       crop_pars <- df %>%
         group_by(track) %>%
         filter(frame <= pars.list$frame) %>%
         filter(frame == max(frame)) %>%
-        mutate(X = ifelse(X < window_half, window_half, # if windows exceeds image boundaries...
-                          ifelse(pars.list$width - X < window_half, pars.list$width - window_half, X)),
+        mutate(X_img = ifelse(X_img < window_half, window_half, # if windows exceeds image boundaries...
+                          ifelse(pars.list$width - X_img < window_half, pars.list$width - window_half, X_img-1)),
+               Y_img = ifelse(Y_img < window_half, window_half,
+                          ifelse(pars.list$height - Y_img < window_half, pars.list$height - window_half ,Y_img)),
+               x_min_img = X_img - window_half,
+               x_max_img = X_img + window_half,
+               y_min_img = Y_img - window_half,
+               y_max_img = Y_img + window_half,
+               
+               X = ifelse(X < window_half, window_half, # if windows exceeds image boundaries...
+                              ifelse(pars.list$width - X < window_half, pars.list$width - window_half, X)),
                Y = ifelse(Y < window_half, window_half,
-                          ifelse(pars.list$height - Y < window_half, pars.list$height - window_half ,Y)),
+                              ifelse(pars.list$height - Y < window_half, pars.list$height - window_half ,Y)),
                x_min = X - window_half,
                x_max = X + window_half,
                y_min = Y - window_half,
                y_max = Y + window_half) %>%
-        mutate(string = crop_string_df(x_min, x_max, y_min, y_max)) %>%
+        mutate(string = crop_string_df(x_min_img, x_max_img, y_min_img, y_max_img)) %>%
         ungroup()
     }
   }
   # crop whole image
   if (pars.list$crop & !pars.list$sub.img) {
-    crop_pars <- df %>% summarise(x_min = min(X),
-                                  x_max = max(X),
-                                  y_min = min(Y),
-                                  y_max = max(Y)) %>% as.list()
+    crop_pars <- df %>% summarise(x_min_img = min(X_img)-1,
+                                  x_max_img = max(X_img)-1,
+                                  y_min_img = min(Y_img),
+                                  y_max_img = max(Y_img),
+                                  x_min = min(X),
+                                  y_min=min(Y), 
+                                  x_max=max(X),
+                                  y_max=max(Y)) %>% as.list()
   }
   return(crop_pars)
 }
@@ -139,8 +157,8 @@ process_img <- function(df,image, pars.list){
         image_process <- image[c(z_low,z_up)] %>% project_z(pars.list$width, pars.list$height, 'mean',pars.list$image_depth, weights)
         if (length(crop_string_track) == 1) {
           image_cropped <- image_process[1] %>%
-            image_crop(crop_string_track) %>%
-            image_flip()
+            image_crop(crop_string_track) #%>%
+            #image_flip()
           image_process <- c(image_process,image_cropped)
         } else {# if track not present yet, add blank image
           image_process <- c(image_process,image_blank(pars.list$sub.window, pars.list$sub.window))
@@ -152,8 +170,8 @@ process_img <- function(df,image, pars.list){
       crop_string_track <- pars.list$crop_pars %>% filter(track == i) %>% select(string) %>% pull()
       if (length(crop_string_track) == 1) {
         image_cropped <- image[1] %>%
-          image_crop(crop_string_track) %>%
-          image_flip()
+          image_crop(crop_string_track) #%>%
+          #image_flip()
         image <- c(image,image_cropped)
       } else {# if track not present yet, add blank image
         # get crop string for first occurence of track
@@ -169,16 +187,16 @@ process_img <- function(df,image, pars.list){
                y_max = Y + window_half) %>%
           mutate(string = crop_string_df(x_min, x_max, y_min, y_max)) %>% select(string) %>% pull()
         image_cropped <- image[1] %>%
-          image_crop(crop_string_track) %>%
-          image_flip()
+          image_crop(crop_string_track) #%>%
+          #image_flip()
         image <- c(image,image_cropped)
       }
     }
   } else {
     if (pars.list$crop) {
-      image <- image %>% image_crop(crop_string(pars.list$crop_pars)) %>% image_flip()
+      image <- image %>% image_crop(crop_string(pars.list$crop_pars)) #%>% image_flip()
     } else {
-      image <- image %>% image_flip()
+      image <- image #%>% image_flip()
     }
   }
   return(image)
@@ -238,16 +256,16 @@ plot_frame <- function(df, image, pars.list){
     crop_pars <- pars.list$crop_pars
     axis_ticks_x <- seq(crop_pars[['x_min']], crop_pars[['x_max']], pars.list$axis.tick)
     axis_ticks_y <- seq(crop_pars[['y_min']], crop_pars[['y_max']], pars.list$axis.tick)
-    p <- p + annotation_custom(grob = bg,
+    p <- p + annotation_custom(bg,
                                xmin = crop_pars[['x_min']],
                                xmax = crop_pars[['x_max']],
                                ymin = crop_pars[['y_min']],
                                ymax = crop_pars[['y_max']]) +
-      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']] + 0.5),
+      scale_x_continuous(limits = c(crop_pars[['x_min']], crop_pars[['x_max']]),
                          breaks = axis_ticks_x,
                          labels = axis_ticks_x*pars.list$scaling,
                          expand = c(0, 0)) +
-      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']] + 0.5),
+      scale_y_continuous(limits = c(crop_pars[['y_min']], crop_pars[['y_max']]),
                          breaks = axis_ticks_y,
                          labels = axis_ticks_y*pars.list$scaling,
                          expand = c(0, 0))
@@ -287,7 +305,7 @@ plot_frame <- function(df, image, pars.list){
                  position = 'identity',
                  size = pars.list$points.size)
   }
-  # add continous color scale
+  # add continuous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
       p <- p + scale_color_viridis_c(limits = c(pars.list$par.min,pars.list$par.max),
@@ -363,7 +381,7 @@ plot_frame_sub <- function(df, image, pars.list){
            color = pars.list$label.col,
            shape = str_to_sentence(pars.list$par.shape))
   }
-  # add continous color scale
+  # add continuous color scale
   if (is.numeric(df[pars.list$par.map] %>% pull())) {
     if (str_count(pars.list$label.col, "\\S+") > 1) {
       p <- p + scale_color_viridis_c(limits = c(pars.list$par.min, pars.list$par.max),
@@ -465,11 +483,11 @@ plot_frame_sub <- function(df, image, pars.list){
            scale_x_continuous(limits = c(pars_plot[['x_min']], pars_plot[['x_max']]),
                               expand = c(0, 0)) +
            scale_y_continuous(limits = c(pars_plot[['y_min']],pars_plot[['y_max']]),
-                              expand = c(0, 0)) +
-           theme(legend.position = 'none',
-                 axis.title = element_blank(),
-                 axis.text = element_blank(),
-                 axis.ticks = element_blank())
+                              expand = c(0, 0))# +
+           # theme(legend.position = 'none',
+           #       axis.title = element_blank(),
+           #       axis.text = element_blank(),
+           #       axis.ticks = element_blank())
            } 
       # add scale bars
       if (pars.list$scale.bar == TRUE) {

@@ -19,12 +19,6 @@ visumot_summary(df, ...)
 
 \item{par.shape}{\code{character}: specifying parameter in \code{df} to be mapped on shape}
 
-\item{par.display}{display option for mapping; default: \code{TRUE}, mapping is disable with: \code{FALSE}}
-
-\item{par.max}{\code{numeric}: defining range of color mapping}
-
-\item{par.unit}{\code{character}: unit of the numeric mapped parameter}
-
 \item{ribbon}{\code{logical}: display ribbon}
 
 \item{ribbon.stat}{\code{character}: choose ribbon-statistic: \code{'sd'}: standard deviation,

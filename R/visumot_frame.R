@@ -43,7 +43,7 @@ visumot_frame <- function(df, ...) {
                             unit = 'px', scaling = 1, dimensions = 2, projection = NULL, manual.z = NULL,
                             track.label = TRUE, tracks.label.x = 10, tracks.label.y = 10,
                             scale.bar = FALSE, scale.width = 40, scale.height = 10, scale.x = 10,
-                            scale.y = 10, scale.color = 'grey70')
+                            scale.y = 10, scale.color = 'grey70', interactive=FALSE)
 
   #' @param df dataframe of the form: \code{df(track, time, X, Y, (Z,) mapping_parameters, ...)}
   #' @param image \code{character}: filename of image
@@ -55,7 +55,8 @@ visumot_frame <- function(df, ...) {
   #' @param par.map \code{character}: specifying parameter in \code{df} to be visualized by color
   #' @param par.shape \code{character}: specifying parameter in \code{df} to be mapped on shape
   #' @param par.display display option for mapping; default: \code{TRUE}, mapping is disable with: \code{FALSE}
-  #' @param par.max \code{numeric}: defining range of color mapping
+  #' @param par.max \code{numeric}: defining upper range of color mapping
+  #' @param par.min \code{numeric}: defining lower range of color mapping
   #' @param par.unit \code{character}: unit of the numeric mapped parameter
   #' @param crop \code{logical}: option for cropping images; default: \code{FALSE}
   #' @param sub.img \code{logical}: option for creating sub-images from specified \code{tracks} or pre-filtered \code{df}; default: \code{FALSE}
@@ -64,6 +65,9 @@ visumot_frame <- function(df, ...) {
   #' @param tracks.size \code{numeric}: size of tracks
   #' @param tracks.alpha \code{numeric}: transparency of tracks
   #' @param tracks.length \code{numeric}: length of tracks (in frames)
+  #' @param tracks.label \code{logical}: when sub.img is used, display or hide track label
+  #' @param tracks.label.x \code{numeric}: when sub.img is used, set x-position of label
+  #' @param tracks.label.y \code{numeric}: when sub.img is used, set y-position of label
   #' @param points.size \code{numeric}: size of points
   #' @param points.alpha \code{numeric}: transparency of points
   #' @param points.stat \code{character}: display statistic; default: \code{'echo'}, for blurring; without blurring \code{'identity'}
@@ -74,7 +78,7 @@ visumot_frame <- function(df, ...) {
   #' @param unit \code{character}: setting name of unit; default: \code{'px'}
   #' @param scaling \code{numeric}: scaling factor for unit; default: \code{1}
   #' @param dimensions \code{numeric}: specify whether the images are 2D or 3D. 
-  #' If 3D is selected data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}
+  #' If 3D is selected the data is assumed to be in the form: \code{df(track, time, X, Y, Z, mapping paramters, ...)}
   #' @param manual.z \code{numerice}: specify Z-plane to be visualized if no projection or sub windows are used 
   #' @param scale.bar \code{logical}: show scalebar; default: \code{FALSE}
   #' @param scale.width \code{numeric}: width of scalebar; default: \code{40}
@@ -82,6 +86,8 @@ visumot_frame <- function(df, ...) {
   #' @param scale.x \code{numeric}: distance from left border of the image towards scalebar
   #' @param scale.y \code{numeric}: distance from bottom border of the image towards scalebar
   #' @param scale.color \code{character}: specify color from R-color palette or hexcode
+  #' @param interactive \code{logical}: return the plot as an interactive plotly object. Not supported when using 
+  #' sub.img or crop modes. 
   #' @return returns a ggplot2 plot-object which can be further modified 
 
   # get user input
@@ -108,6 +114,8 @@ visumot_frame <- function(df, ...) {
   if (is.null(pars.list$frame)) {
     stop('Frame not specified.')
   }
+  
+  
   # check if mapping parameter is specified
   if (is.null(pars.list$par.map)) {
     pars.list$par.map <- colnames(df)[5]
@@ -142,6 +150,20 @@ visumot_frame <- function(df, ...) {
   
   # read in image
   image <- image_read(pars.list$image)
+  
+  
+  # correct coordinate system for ggplot based on image properties
+  image_height <- image_info(image) %>%
+    select(height) %>%
+    pull() %>%
+    unique()
+  
+  df <- df %>%
+    mutate(Y_img = Y,
+           X_img = X,
+           Y= image_height - Y, 
+           X = X-1)
+ 
   
   # select image from stack
   if(pars.list$stack==TRUE & pars.list$dimension == 2){
@@ -182,11 +204,31 @@ visumot_frame <- function(df, ...) {
   image <- process_img(df,image, pars.list)
   
   # plot according to parameters
-  #suppressMessages(suppressWarnings(
+  suppressWarnings(
     if (pars.list$sub.img) {
       return(plot_frame_sub(df, image, pars.list))
     } else {
-      return(plot_frame(df, image, pars.list))
+      if(pars.list$interactive==FALSE | pars.list$crop==TRUE){
+        if(pars.list$crop== 1 & pars.list$interactive==TRUE){
+          message('Set crop to false in order to use the interactive viewer. Defaulting to normal output.')
+        }
+        return(plot_frame(df, image, pars.list))
+      } else {
+        return(plot_frame(df, image, pars.list) %>%
+                 ggplotly() %>% 
+                 layout(
+                   images = list(
+                     source = raster2uri(as.raster(image)),
+                     x = 0, y = 0, 
+                     sizex = image_info(image) %>% select(width) %>% pull() %>% unique(),
+                     sizey = image_info(image) %>% select(height) %>% pull() %>% unique(),
+                     xref = "x", yref = "y",
+                     xanchor = "left", yanchor = "bottom",
+                     sizing = "fill", 
+                     layer='below'
+                   )))
+      }
+      
     }
-  #))
+  )
 }

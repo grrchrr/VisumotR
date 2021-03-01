@@ -17,7 +17,7 @@ visumot_all(
   file_name = NULL,
   width = 2000,
   height = 1200,
-  rel_width = 1,
+  rel_width = 0.66,
   browse = FALSE,
   return = FALSE
 )

@@ -24,19 +24,19 @@
 # # image_read(array) %>% image_write('calibrate.tiff', format='tif')
 # 
 # 
-# df_calibrate <- tibble(track=as.factor(seq(1,510,10)), time=rep(1,51) ,X=seq(1,510,10), Y=seq(1,510,10))
-# 
-# pos <- df_calibrate %>% select(X,Y) %>% as.list()
-# 
-# array <- array(NA,dim=c(510,510,1))
-# 
-# for (i in c(1:length(pos$Y))){
-# array[pos$Y[i], pos$X[i],1] <- 1
-# }
-# 
-# 
-# image_read(array) %>% image_write('../calibrate.tiff', format='tif')
-# 
+df_calibrate <- tibble(track=as.factor(seq(1,510,10)), time=rep(1,51) ,X=seq(1,510,10), Y=seq(1,510,10))
+#
+ pos <- df_calibrate %>% select(X,Y) %>% as.list()
+#
+array <- array(1,dim=c(2240,2240,1))
+#
+for (i in c(1:length(pos$Y))){
+  array[pos$Y[i], pos$X[i],1] <- 1
+  }
+#
+#
+image_read(array) %>% image_write('white.png', format='png')
+#
 # 
 # 
 # 
